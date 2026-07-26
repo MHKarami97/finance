@@ -189,8 +189,8 @@ async function syncData() {
 self.addEventListener('push', (event) => {
     const options = {
         body: event.data ? event.data.text() : 'اعلان جدید',
-        icon: '/assets/icons/favicon.png',
-        badge: '/assets/icons/favicon.png',
+        icon: '/icons/favicon.png',
+        badge: '/icons/favicon.png',
         vibrate: [100, 50, 100],
         data: {
             dateOfArrival: Date.now(),
