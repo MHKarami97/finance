@@ -54,6 +54,52 @@ h1, h2, h3, p { margin: 0; }
   gap: var(--space-5);
 }
 
-@media (min-width: 768px) {
+/* ---------- Responsive scaling for larger screens ---------- */
+/* Tablet */
+@media (min-width: 576px) {
   .page { max-width: 600px; }
+}
+
+/* Tablet Large / Desktop Small */
+@media (min-width: 896px) {
+  .page { max-width: 760px; }
+  .page__content { padding: var(--space-6); gap: var(--space-6); }
+  body { font-size: 17px; }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .page { max-width: 880px; padding-bottom: var(--space-6); }
+  .topbar { padding: var(--space-5) var(--space-6); }
+  .topbar__title { font-size: 1.75rem; }
+}
+
+/* Large Desktop */
+@media (min-width: 1280px) {
+  .page { max-width: 980px; }
+  .page__content { padding: var(--space-6) var(--space-6) 40px; }
+}
+
+@media (min-width: 1024px) {
+  #app { min-height: 100vh; }
+  body {
+    background: radial-gradient(circle at 50% -10%, var(--bg-surface) 0%, var(--bg-base) 60%);
+  }
+}
+
+
+@media (min-width: 1280px) {
+  #app {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .page {
+    box-shadow: var(--shadow-elevation);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-6);
+    background: var(--bg-base);
+    overflow: hidden;
+  }
+  .topbar { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
 }

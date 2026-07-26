@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <title>آفلاین - تقویم</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ff4f00" />
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="stylesheet" href="/assets/fonts/Vazirmatn-font-face.css">
+    <style>
+        :root {
+            --bg-gradient-1: #0f1730;
+            --bg-gradient-2: #1a2344;
+            --text-color: #ffffff;
+            --text-muted: #b8b8d1;
+            --primary-color: #7c5cff;
+            --card-bg: rgba(124, 92, 255, 0.1);
+            --card-border: rgba(124, 92, 255, 0.3);
+            --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+            --btn-secondary-border: rgba(255, 255, 255, 0.2);
+            --btn-secondary-hover: rgba(255, 255, 255, 0.2);
+        }
+
+        body[data-theme="light"] {
+            --bg-gradient-1: #f6f7fb;
+            --bg-gradient-2: #e8eaf6;
+            --text-color: #1a2344;
+            --text-muted: #666f8a;
+            --primary-color: #7c5cff;
+            --card-bg: rgba(124, 92, 255, 0.08);
+            --card-border: rgba(124, 92, 255, 0.25);
+            --btn-secondary-bg: rgba(0, 0, 0, 0.06);
+            --btn-secondary-border: rgba(0, 0, 0, 0.12);
+            --btn-secondary-hover: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Vazirmatn, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-muted);
+        }
+
+        .offline-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: Vazirmatn, sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #7c5cff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6a4ce0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(124, 92, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--btn-secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--btn-secondary-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--btn-secondary-hover);
+            transform: translateY(-2px);
+        }
+
+        .cached-info {
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        .cached-info h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .cached-info ul {
+            list-style: none;
+            font-size: 14px;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .cached-info li {
+            padding: 5px 0;
+        }
+
+        .cached-info li::before {
+            content: "✓ ";
+            color: var(--primary-color);
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📴</div>
+        <h1>شما آفلاین هستید</h1>
+        <p>به نظر می‌رسد اتصال اینترنت شما قطع است. برای در دسترس بودن ابزارها نیاز است حداقل یکبار در زمان اتصال به اینترنت از آن استفاده کرده باشید.</p>
+        
+        <div class="offline-actions">
+            <button class="btn btn-primary" onclick="window.location.reload()">تلاش مجدد</button>
+            <a href="/" class="btn btn-secondary">بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+
+    <script>
+        // Load theme from localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+            } else {
+                // Use system preference if no saved theme
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = prefersDark ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', theme);
+            }
+        }
+
+        // Load theme immediately
+        loadTheme();
+
+        // Check connection status
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+
+        // Auto retry after 5 seconds
+        setTimeout(() => {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }, 5000);
+    </script>
+</body>
+
+</html>

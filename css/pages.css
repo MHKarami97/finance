@@ -106,3 +106,25 @@
 .about-list li i { color: var(--accent); }
 .dev-name { font-size: 1.1rem; font-weight: 700; color: var(--text-base); text-align: center; }
 .dev-role { font-size: 0.8rem; color: var(--text-tertiary); text-align: center; margin-top: -8px; }
+
+
+/* ---------- Desktop scaling ---------- */
+@media (min-width: 896px) {
+  .donut-chart { width: 260px; height: 260px; }
+  .donut-chart__hole { width: 170px; height: 170px; }
+  .donut-chart__hole span { font-size: 1.2rem; }
+  .report-row { padding: var(--space-4); font-size: 0.95rem; }
+  .report-row__name { font-size: 0.95rem; }
+
+  .shamsi-picker { padding: var(--space-4); }
+  .shamsi-picker__day { font-size: 0.95rem; }
+
+  .about-card { padding: var(--space-6); }
+  .about-card__avatar { width: 80px; height: 80px; font-size: 2rem; }
+  .about-card h2 { font-size: 1.6rem; }
+}
+
+@media (min-width: 1024px) {
+  .about-page { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); align-items: start; }
+  .about-page .about-card:first-child { grid-column: 1 / -1; }
+}

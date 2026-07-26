@@ -1,17 +1,96 @@
 {
-  "name": "مدیریت مالی من - دخل و خرج",
+  "id": "/",
+  "scope": "/",
+  "name": "مدیریت مالی",
   "short_name": "مدیریت مالی",
-  "description": "اپلیکیشن مدیریت مالی شخصی با تقویم شمسی، بدون نیاز به بک‌اند",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
+  "description": "اپلیکیشن مدیریت مالی با قابلیت های هوشمند",
+  "start_url": "/",
+  "display": "fullscreen",
   "background_color": "#121212",
   "theme_color": "#121212",
-  "dir": "rtl",
+  "orientation": "portrait-primary",
   "lang": "fa",
+  "dir": "rtl",
+  "display_override": ["fullscreen", "standalone", "window-controls-overlay"],
+  "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ]
+    {
+      "src": "/assets/icons/favicon-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/favicon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/favicon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/favicon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity", "tools"],
+  "screenshots": [
+    {
+      "src": "/assets/screenshots/01.jpg",
+      "sizes": "576x1280",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "مدیریت مالی"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "مدیریت مالی",
+      "short_name": "مدیریت مالی",
+      "description": "دسترسی سریع به مدیریت مالی",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/assets/icons/favicon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

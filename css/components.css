@@ -144,3 +144,30 @@ textarea.input { resize: vertical; min-height: 60px; }
 }
 .theme-switch--on { background: color-mix(in srgb, var(--accent) 30%, var(--bg-surface-2)); }
 .theme-switch--on::after { transform: translateX(-20px); background: var(--accent); }
+
+
+/* ---------- Desktop scaling ---------- */
+@media (min-width: 896px) {
+  .balance-card { padding: var(--space-6); }
+  .balance-card__amount { font-size: 2.6rem; }
+  .balance-card__stat strong { font-size: 1.05rem; }
+
+  .txn-item { padding: var(--space-4); }
+  .txn-item__icon { width: 48px; height: 48px; font-size: 1.1rem; }
+  .txn-item__title { font-size: 1rem; }
+  .txn-item__amount { font-size: 1.05rem; }
+
+  .category-grid { grid-template-columns: repeat(6, 1fr); gap: var(--space-3); }
+  .category-pill { padding: var(--space-3); font-size: 0.78rem; }
+  .category-pill i { font-size: 1.3rem; }
+
+  .btn { font-size: 1rem; padding: 14px var(--space-6); }
+  .input { padding: 14px var(--space-5); font-size: 1.05rem; }
+  .input--amount { font-size: 1.8rem; }
+
+  .settings-row { padding: var(--space-4) var(--space-5); font-size: 1rem; }
+}
+
+@media (min-width: 1024px) {
+  .category-grid { grid-template-columns: repeat(8, 1fr); }
+}
