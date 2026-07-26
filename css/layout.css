@@ -112,7 +112,7 @@
 
 .install-prompt {
   position: fixed;
-  bottom: 20px;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -197,7 +197,7 @@
 
 .update-notification {
   position: fixed;
-  bottom: 24px;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%) translateY(150%);
   z-index: 1000;
