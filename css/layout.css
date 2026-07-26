@@ -83,7 +83,7 @@
 }
 .bottom-nav__item--central i {
   background: var(--accent);
-  color: #000000;
+  color: var(--text-base);
   width: 52px;
   height: 52px;
   border-radius: 50%;
