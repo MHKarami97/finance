@@ -1,0 +1,146 @@
+/**
+ * Reusable UI components: buttons, inputs, cards, chips, list items
+ */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 12px var(--space-5);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+.btn:active { transform: scale(0.97); }
+.btn--primary { background: var(--accent); color: #000000; }
+.btn--outline { background: transparent; border: 1px solid var(--border-light); color: var(--text-base); }
+.btn--full { width: 100%; }
+
+.input {
+  width: 100%;
+  background: var(--bg-surface-2);
+  color: var(--text-base);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 12px var(--space-4);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+.input:focus { border-color: var(--accent); }
+.input--amount { font-size: 1.5rem; font-weight: 700; text-align: center; }
+textarea.input { resize: vertical; min-height: 60px; }
+
+.form { display: flex; flex-direction: column; gap: var(--space-3); }
+.form__label { font-size: 0.88rem; font-weight: 600; color: var(--text-secondary); margin-top: var(--space-2); }
+
+.balance-card {
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-card-alt));
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-elevation);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.balance-card__label { font-size: 0.88rem; color: var(--text-secondary); }
+.balance-card__amount { font-size: 2rem; font-weight: 700; }
+.balance-card__amount--negative { color: var(--negative); }
+.balance-card__row { display: flex; gap: var(--space-4); margin-top: var(--space-2); }
+.balance-card__stat { display: flex; align-items: center; gap: var(--space-2); flex: 1; }
+.balance-card__stat div { display: flex; flex-direction: column; }
+.balance-card__stat span { font-size: 0.75rem; color: var(--text-secondary); }
+.balance-card__stat strong { font-size: 0.95rem; }
+.income-icon { color: var(--accent); }
+.expense-icon { color: var(--negative); }
+
+.txn-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.txn-list__group-header {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 700;
+  padding: var(--space-2) 0 0;
+}
+.txn-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.txn-item:hover { background: var(--bg-card); }
+.txn-item__icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.txn-item__body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.txn-item__title { font-weight: 600; font-size: 0.95rem; }
+.txn-item__date { font-size: 0.75rem; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.txn-item__amount { font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+.txn-item__amount--positive { color: var(--accent); }
+.txn-item__amount--negative { color: var(--negative); }
+
+.filter-bar { display: flex; flex-direction: column; gap: var(--space-3); }
+.chip-group { display: flex; gap: var(--space-2); }
+.chip {
+  padding: 6px var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.chip--active { background: var(--accent); color: #000000; }
+
+.type-toggle { display: flex; gap: var(--space-2); background: var(--bg-surface-2); border-radius: var(--radius-pill); padding: 4px; }
+.type-toggle__btn { flex: 1; padding: 10px; border-radius: var(--radius-pill); font-weight: 700; color: var(--text-secondary); text-align: center; }
+.type-toggle__btn--active { background: var(--negative); color: #ffffff; }
+.type-toggle__btn--active[data-type='income'] { background: var(--accent); color: #000000; }
+
+.category-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
+.category-pill {
+  --cat-color: #7c7c7c;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-2);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+}
+.category-pill i { font-size: 1.1rem; color: var(--cat-color); }
+.category-pill--active { border-color: var(--cat-color); background: color-mix(in srgb, var(--cat-color) 15%, var(--bg-surface-2)); color: var(--text-base); }
+
+.settings-group { display: flex; flex-direction: column; gap: var(--space-1); }
+.settings-group__title { font-size: 0.8rem; color: var(--text-tertiary); font-weight: 700; margin-bottom: var(--space-1); padding: 0 var(--space-2); }
+.settings-row {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+.settings-row i { width: 20px; text-align: center; color: var(--text-secondary); }
+.settings-row--danger { color: var(--negative); }
+.settings-row--danger i { color: var(--negative); }
+.app-version { text-align: center; font-size: 0.75rem; color: var(--text-tertiary); }
+
+.theme-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); background: var(--bg-surface); border-radius: var(--radius-md); }
+.theme-switch { position: relative; width: 48px; height: 28px; background: var(--bg-surface-2); border-radius: var(--radius-pill); }
+.theme-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+.theme-switch--on { background: color-mix(in srgb, var(--accent) 30%, var(--bg-surface-2)); }
+.theme-switch--on::after { transform: translateX(-20px); background: var(--accent); }

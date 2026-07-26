@@ -1,0 +1,74 @@
+/**
+ * Theme Tokens (Dark + Light)
+ * Design tokens ported from the Spotify-inspired design system (spotify-DESIGN.md).
+ * Dark theme is the default; Light theme is a fully-supported alternate palette
+ * toggled via [data-theme="light"] on <html>, persisted in localStorage.
+ */
+:root {
+  --font-ui: 'Vazirmatn', 'SpotifyMixUI', -apple-system, 'Segoe UI', Tahoma, sans-serif;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  --accent: #1ed760;
+  --accent-border: #1db954;
+  --negative: #f3727f;
+  --warning: #ffa42b;
+  --announce: #539df5;
+
+  --shadow-heavy: rgba(0, 0, 0, 0.5) 0px 8px 24px;
+  --shadow-medium: rgba(0, 0, 0, 0.3) 0px 8px 8px;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+}
+
+/* ---------- Dark theme (default) ---------- */
+:root,
+[data-theme='dark'] {
+  --bg-base: #121212;
+  --bg-surface: #181818;
+  --bg-surface-2: #1f1f1f;
+  --bg-card: #252525;
+  --bg-card-alt: #272727;
+
+  --text-base: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-tertiary: #7c7c7c;
+
+  --border-color: #4d4d4d;
+  --border-light: #7c7c7c;
+  --separator: #2a2a2a;
+
+  --shadow-elevation: var(--shadow-medium);
+}
+
+/* ---------- Light theme ---------- */
+[data-theme='light'] {
+  --bg-base: #f7f7f7;
+  --bg-surface: #ffffff;
+  --bg-surface-2: #f0f0f0;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f4f4f4;
+
+  --text-base: #121212;
+  --text-secondary: #5a5a5a;
+  --text-tertiary: #8a8a8a;
+
+  --border-color: #e0e0e0;
+  --border-light: #cccccc;
+  --separator: #ececec;
+
+  --shadow-elevation: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+  --accent-border: #189b45;
+}

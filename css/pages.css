@@ -1,0 +1,108 @@
+/**
+ * Page-specific styles: Reports (donut chart), Shamsi date picker, About page
+ */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+}
+.month-nav button {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--bg-surface-2);
+  display: flex; align-items: center; justify-content: center;
+}
+.month-nav span { font-weight: 700; font-size: 1rem; }
+
+.donut-wrapper { display: flex; justify-content: center; padding: var(--space-4) 0; }
+.donut-chart {
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-elevation);
+}
+.donut-chart__hole {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: var(--bg-base);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+}
+.donut-chart__hole span { font-weight: 700; font-size: 1rem; }
+.donut-chart__hole small { color: var(--text-tertiary); font-size: 0.7rem; }
+
+.report-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.report-row {
+  display: flex; align-items: center; gap: var(--space-2);
+  background: var(--bg-surface);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+.report-row__dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.report-row__name { flex: 1; font-size: 0.88rem; }
+.report-row__pct { font-size: 0.8rem; color: var(--text-secondary); }
+.report-row__amount { font-weight: 700; font-size: 0.88rem; min-width: 80px; text-align: left; }
+
+/* Shamsi Date Picker */
+.shamsi-picker {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+.shamsi-picker__header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+.shamsi-picker__nav {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg-surface-2);
+  display: flex; align-items: center; justify-content: center;
+}
+.shamsi-picker__title { font-weight: 700; font-size: 0.92rem; }
+.shamsi-picker__weekdays, .shamsi-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.shamsi-picker__weekdays span {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  padding-bottom: 4px;
+}
+.shamsi-picker__day {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+  transition: background var(--transition-fast);
+}
+.shamsi-picker__day:hover { background: var(--bg-surface-2); }
+.shamsi-picker__day--selected { background: var(--accent); color: #000000; font-weight: 700; }
+
+/* About page */
+.about-page { gap: var(--space-4); }
+.about-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex; flex-direction: column; gap: var(--space-3);
+  text-align: center;
+}
+.about-card__avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent);
+  color: #000000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  margin: 0 auto;
+}
+.about-card__avatar--dev { background: var(--announce); color: #ffffff; }
+.about-card h2 { font-size: 1.3rem; font-weight: 700; }
+.about-card h3 { font-size: 1.05rem; font-weight: 700; text-align: right; }
+.about-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; text-align: right; }
+.about-list { display: flex; flex-direction: column; gap: var(--space-2); text-align: right; }
+.about-list li { display: flex; align-items: center; gap: var(--space-2); font-size: 0.88rem; color: var(--text-secondary); }
+.about-list li i { color: var(--accent); }
+.dev-name { font-size: 1.1rem; font-weight: 700; color: var(--text-base); text-align: center; }
+.dev-role { font-size: 0.8rem; color: var(--text-tertiary); text-align: center; margin-top: -8px; }

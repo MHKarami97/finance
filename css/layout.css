@@ -1,0 +1,100 @@
+/**
+ * TopBar, BottomNav & general layout components
+ */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--separator);
+}
+
+.topbar__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.topbar__action {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background var(--transition-fast);
+}
+.topbar__action:hover { background: var(--bg-card); }
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--separator);
+  padding: var(--space-2) var(--space-4);
+  padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: var(--shadow-elevation);
+}
+
+@media (min-width: 768px) { .bottom-nav { max-width: 600px; } }
+
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  flex: 1;
+  padding: var(--space-1) 0;
+  transition: color var(--transition-fast);
+}
+.bottom-nav__item i { font-size: 1.15rem; }
+.bottom-nav__item--active { color: var(--accent); }
+
+.bottom-nav__item--central {
+  position: relative;
+  top: -14px;
+}
+.bottom-nav__item--central i {
+  background: var(--accent);
+  color: #000000;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-heavy);
+}
+.bottom-nav__item--central span { display: none; }
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.section-header h2 { font-size: 1.13rem; font-weight: 600; }
+.link { color: var(--accent); font-size: 0.88rem; font-weight: 600; }
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--space-6) var(--space-4);
+  font-size: 0.9rem;
+}
