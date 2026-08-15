@@ -222,7 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Handle update button click
-    document.addEventListener("DOMContentLoaded", () => {
       const updateButton = document.getElementById("updateButton");
       const dismissButton = document.getElementById("dismissUpdate");
       const notification = document.getElementById("updateNotification");
@@ -258,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
           notification.classList.add("hidden");
         });
       }
-    });
   }
 
   // Handle app installation
