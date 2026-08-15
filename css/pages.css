@@ -128,3 +128,54 @@
   .about-page { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); align-items: start; }
   .about-page .about-card:first-child { grid-column: 1 / -1; }
 }
+
+/* Market Prices Page */
+.market-toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.market-toolbar__updated { font-size: 0.75rem; color: var(--text-tertiary); }
+.unit-switch { display: flex; background: var(--bg-surface-2); border-radius: var(--radius-pill); padding: 4px; }
+.unit-switch__opt { padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
+.unit-switch__opt--active { background: var(--accent); color: #000000; }
+
+.price-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+.price-card { background: var(--bg-surface); border-radius: var(--radius-md); padding: var(--space-3); display: flex; flex-direction: column; gap: 6px; }
+.price-card__label { font-size: 0.78rem; color: var(--text-secondary); }
+.price-card__value { font-size: 1.05rem; font-weight: 700; }
+.price-card--unavailable .price-card__value { color: var(--text-tertiary); font-size: 0.85rem; font-weight: 500; }
+
+.price-table-wrap { max-height: 420px; overflow-y: auto; border-radius: var(--radius-md); background: var(--bg-surface); }
+.price-table__row { display: flex; justify-content: space-between; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--separator); font-size: 0.85rem; }
+.price-table__key { color: var(--text-secondary); }
+.price-table__value { font-weight: 700; }
+
+/* Assets Page */
+.asset-total-card { background: linear-gradient(135deg, var(--bg-card), var(--bg-card-alt)); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); box-shadow: var(--shadow-elevation); }
+.asset-total-card__label { font-size: 0.85rem; color: var(--text-secondary); }
+.asset-total-card__amount { font-size: 1.8rem; font-weight: 700; }
+
+.asset-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.asset-item { display: flex; align-items: center; gap: var(--space-3); background: var(--bg-surface); border-radius: var(--radius-md); padding: var(--space-3); }
+.asset-item__body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.asset-item__title { font-weight: 600; font-size: 0.92rem; }
+.asset-item__meta { font-size: 0.75rem; color: var(--text-tertiary); }
+.asset-item__value { font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
+.asset-item__value--warning { color: var(--warning); font-weight: 500; font-size: 0.78rem; }
+.asset-item__value--manual::after { content: ' (دستی)'; font-size: 0.7rem; color: var(--text-tertiary); font-weight: 400; }
+.asset-item__actions { display: flex; gap: var(--space-2); }
+.icon-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-surface-2); color: var(--text-secondary); }
+.icon-btn--danger { color: var(--negative); }
+
+/* Asset Form Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: var(--space-4); }
+.modal { background: var(--bg-base); border-radius: var(--radius-lg); padding: var(--space-5); width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3); }
+.modal__title { font-size: 1.1rem; font-weight: 700; }
+.modal__actions { display: flex; gap: var(--space-3); margin-top: var(--space-2); }
+.modal__actions .btn { flex: 1; }
+.form-hint { font-size: 0.75rem; color: var(--warning); line-height: 1.6; }
+
+@media (min-width: 896px) {
+  .price-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.price-table-wrap { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); }
+
+#price-all-wrap[hidden] { display: none !important; }

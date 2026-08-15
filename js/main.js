@@ -15,6 +15,10 @@ import { AddTransactionPage } from "./presentation/pages/AddTransactionPage.js";
 import { ReportsPage } from "./presentation/pages/ReportsPage.js";
 import { SettingsPage } from "./presentation/pages/SettingsPage.js";
 import { AboutPage } from "./presentation/pages/AboutPage.js";
+import { AssetRepository } from "./infrastructure/repositories/AssetRepository.js";
+import { AssetService } from "./application/AssetService.js";
+import { MarketPricesPage } from "./presentation/pages/MarketPricesPage.js";
+import { AssetsPage } from "./presentation/pages/AssetsPage.js";
 
 /**
  * Composition Root: main.js
@@ -36,6 +40,8 @@ class App {
     this.categoryRepo = new CategoryRepository();
     this.walletRepo = new WalletRepository();
     this.budgetRepo = new BudgetRepository();
+    this.assetRepo = new AssetRepository();
+    this.assetService = new AssetService(this.assetRepo);
 
     this.transactionService = new TransactionService(
       this.transactionRepo,
@@ -91,6 +97,10 @@ class App {
           walletRepo: this.walletRepo,
           router: this.#router,
         }).render(),
+      )
+      .register("/market", () => new MarketPricesPage().render())
+      .register("/assets", () =>
+        new AssetsPage({ assetService: this.assetService }).render(),
       )
       .register("/about", () => new AboutPage().render());
   }

@@ -1,7 +1,3 @@
-/**
- * Component: BottomNav (Factory Pattern)
- * Renders the fixed bottom navigation bar used across all mobile views.
- */
 export class BottomNav {
   static render(activePath) {
     const nav = document.createElement('nav');
@@ -9,7 +5,9 @@ export class BottomNav {
     const items = [
       { path: '/dashboard', icon: 'fa-chart-pie', label: 'داشبورد' },
       { path: '/transactions', icon: 'fa-list', label: 'تراکنش‌ها' },
+      { path: '/market', icon: 'fa-money-bill-trend-up', label: 'قیمت‌ها' },
       { path: '/add', icon: 'fa-circle-plus', label: 'افزودن', isCentral: true },
+      { path: '/assets', icon: 'fa-coins', label: 'دارایی‌ها' },
       { path: '/reports', icon: 'fa-chart-column', label: 'گزارش‌ها' },
       { path: '/settings', icon: 'fa-gear', label: 'تنظیمات' },
     ];
