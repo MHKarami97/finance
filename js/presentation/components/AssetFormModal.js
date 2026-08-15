@@ -70,7 +70,7 @@ export class AssetFormModal {
         html += `
           <label class="form__label">مقدار / تعداد</label>
           <input type="number" min="0" step="0.001" class="input" id="asset-quantity" value="${initial?.quantity ?? 1}" />
-          <label class="form__label">قیمت دستی (اگر در API نبود)</label>
+          <label class="form__label">قیمت دستی (اگر در سیستم نبود)</label>
           <input type="number" min="0" class="input" id="asset-manual-price" value="${initial?.manualPrice ?? ''}" />
           <p class="form-hint">اگر این آیتم در سرویس قیمت پیدا نشود، از مقدار دستی بالا استفاده می‌شود.</p>
         `;
