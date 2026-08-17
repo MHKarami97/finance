@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'finance-v1.0.2';
+﻿const CACHE_NAME = 'finance-v1.0.3';
 const OFFLINE_PAGE = '/offline.html';
 
 const urlsToCache = [
