@@ -1,0 +1,257 @@
+/* ==========================================================================
+   Debt splitting ("دنگ") feature styles.
+   Self-contained: all class names are prefixed with `debt-` so they can't
+   collide with existing component/page styles. Uses CSS variables already
+   defined by theme.css where sensible, with safe fallbacks otherwise.
+   ========================================================================== */
+
+.debts-page {
+  padding-bottom: 2rem;
+}
+
+/* ---- Group ("trip") list ---- */
+.debt-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.debt-group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.debt-group-item:hover {
+  background: var(--card-bg-hover, rgba(255, 255, 255, 0.1));
+}
+
+.debt-group-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.debt-group-item__title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.debt-group-item__meta {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #9a9a9a);
+}
+
+/* ---- Back link inside detail view ---- */
+.debt-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* ---- Member chips ---- */
+.debt-member-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.debt-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+  font-size: 0.85rem;
+}
+
+.debt-chip__name {
+  font-weight: 600;
+}
+
+.debt-chip__balance {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #9a9a9a);
+}
+
+.debt-chip__balance--credit {
+  color: #1ed760;
+}
+
+.debt-chip__balance--debit {
+  color: #f3727f;
+}
+
+.debt-chip__remove {
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.debt-chip__remove:hover {
+  opacity: 1;
+}
+
+/* ---- Expense list ---- */
+.debt-expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.debt-expense-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+}
+
+.debt-expense-item__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.debt-expense-item__title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.debt-expense-item__meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #9a9a9a);
+}
+
+.debt-expense-item__amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.debt-expense-item__actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+/* ---- Settlement result ---- */
+.debt-settlement-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.debt-settlement-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: 1rem;
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+  font-size: 0.88rem;
+}
+
+.debt-settlement-row__amount {
+  font-weight: 700;
+  color: #1ed760;
+  white-space: nowrap;
+}
+
+/* ---- Participant checkbox list (inside expense modal) ---- */
+.debt-participant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 40vh;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+}
+
+.debt-participant-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.2rem;
+  cursor: pointer;
+}
+
+/* ---- Modal ---- */
+.debt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.debt-modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--bg-elevated, #1c1c1e);
+  border-radius: 1.25rem 1.25rem 0 0;
+  padding: 1.25rem;
+  animation: debt-modal-slide-up 0.2s ease-out;
+}
+
+@media (min-width: 640px) {
+  .debt-modal-overlay {
+    align-items: center;
+  }
+
+  .debt-modal {
+    border-radius: 1.25rem;
+  }
+}
+
+@keyframes debt-modal-slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.debt-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.debt-modal__title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.debt-modal__footer {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.debt-modal__footer .btn {
+  flex: 1;
+}

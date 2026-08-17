@@ -48,7 +48,6 @@ export class SettingsPage {
         <h3 class="settings-group__title">درباره</h3>
         <a class="settings-row" href="#/about"><i class="fa-solid fa-circle-info"></i><span>درباره برنامه و سازنده</span></a>
       </section>
-      <p class="app-version">مدیریت مالی من — نسخه ۱.۰.۰ — کاملاً آفلاین و بدون سرور</p>
     `;
     page.appendChild(content);
 

@@ -18,6 +18,9 @@ export class AssetsPage {
         <span class="asset-total-card__label">مجموع دارایی</span>
         <span class="asset-total-card__amount" id="asset-total-amount">در حال محاسبه...</span>
       </div>
+      <a href="#/market" class="btn btn--outline btn--full asset-prices-link">
+        <i class="fa-solid fa-chart-line"></i> مشاهده قیمت‌های لحظه‌ای
+      </a>
       <div class="asset-list" id="asset-list"></div>
     `;
 
