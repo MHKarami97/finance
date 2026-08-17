@@ -1,7 +1,7 @@
-﻿const CACHE_NAME = "finance-v1.0.8";
+const CACHE_NAME = "finance-v1.0.9";
 const OFFLINE_PAGE = "/offline.html";
 
-const urlsToCache = [
+const PRECACHE_URLS = [
   "/",
   "/index.html",
   "/manifest.json",
@@ -73,186 +73,195 @@ const urlsToCache = [
   OFFLINE_PAGE,
 ];
 
-// Helper function to determine if a URL should be cached
-function shouldCache(url) {
-  const urlObj = new URL(url);
-  const pathname = urlObj.pathname;
-
-  // Cache static assets
-  if (
-    pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)
-  ) {
-    return true;
-  }
-
-  // Cache HTML pages from the same origin
-  if (
-    urlObj.origin === self.location.origin &&
-    (pathname.endsWith("/") || pathname.endsWith(".html"))
-  ) {
-    return true;
-  }
-
-  return false;
+function isSameOrigin(url) {
+  return new URL(url).origin === self.location.origin;
 }
 
-// Install: pre-cache the app shell under the current CACHE_NAME.
-// NOTE: bump CACHE_NAME on every deploy — that's the only signal that makes
-// the browser re-run install/activate and pick up new/changed files. Just
-// clearing "site data" in the browser does NOT force this by itself.
+function isStaticAsset(request) {
+  const url = new URL(request.url);
+  return /.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/.test(
+    url.pathname,
+  );
+}
+
+function isHtmlRequest(request) {
+  return (
+    request.mode === "navigate" ||
+    request.destination === "document" ||
+    request.headers.get("accept")?.includes("text/html")
+  );
+}
+
+async function getCurrentCache() {
+  return caches.open(CACHE_NAME);
+}
+
+async function deleteOldCaches() {
+  const cacheNames = await caches.keys();
+  const staleCaches = cacheNames.filter((cacheName) => cacheName !== CACHE_NAME);
+
+  await Promise.all(staleCaches.map((cacheName) => caches.delete(cacheName)));
+}
+
+async function notifyClients(message) {
+  const clientList = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+
+  for (const client of clientList) {
+    client.postMessage(message);
+  }
+}
+
+async function networkFirstForHtml(request) {
+  const cache = await getCurrentCache();
+
+  try {
+    const networkResponse = await fetch(request);
+
+    if (networkResponse && networkResponse.status === 200) {
+      await cache.put(request, networkResponse.clone());
+    }
+
+    return networkResponse;
+  } catch {
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    const indexResponse = await cache.match("/index.html");
+    if (indexResponse) {
+      return indexResponse;
+    }
+
+    const offlineResponse = await cache.match(OFFLINE_PAGE);
+    if (offlineResponse) {
+      return offlineResponse;
+    }
+
+    return Response.error();
+  }
+}
+
+async function cacheFirstCurrentVersionOnly(request) {
+  const cache = await getCurrentCache();
+  const cachedResponse = await cache.match(request);
+
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
+  const networkResponse = await fetch(request);
+
+  if (
+    networkResponse &&
+    networkResponse.status === 200 &&
+    networkResponse.type !== "error"
+  ) {
+    await cache.put(request, networkResponse.clone());
+  }
+
+  return networkResponse;
+}
+
+async function networkOnlyWithOfflineFallback(request) {
+  try {
+    return await fetch(request);
+  } catch {
+    if (isHtmlRequest(request)) {
+      const cache = await getCurrentCache();
+      const offlineResponse = await cache.match(OFFLINE_PAGE);
+      if (offlineResponse) {
+        return offlineResponse;
+      }
+    }
+
+    return Response.error();
+  }
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("Opened cache", CACHE_NAME);
-      return cache.addAll(urlsToCache);
-    }),
+    (async () => {
+      const cache = await getCurrentCache();
+      await cache.addAll(PRECACHE_URLS);
+      await self.skipWaiting();
+    })(),
   );
-
-  // Force the SW to skip waiting and activate immediately
-  self.skipWaiting();
 });
 
-// Activate: delete every cache that isn't the current version, claim open
-// tabs immediately, then force reload all clients to get fresh content.
 self.addEventListener("activate", (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-
   event.waitUntil(
-    caches
-      .keys()
-      .then((cacheNames) =>
-        Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheWhitelist.indexOf(cacheName) === -1) {
-              console.log("Deleting stale cache:", cacheName);
-              return caches.delete(cacheName);
-            }
-          }),
-        ),
-      )
-      .then(() => self.clients.claim())
-      .then(() =>
-        self.clients.matchAll().then((clients) => {
-                    clients.forEach((client) => {
-            client.postMessage({
-              type: "SW_UPDATED",
-              message: "نسخه جدید در دسترس است",
-            });
-          });
-        }),
-      ),
+    (async () => {
+      await deleteOldCaches();
+      await self.clients.claim();
+
+      await notifyClients({
+        type: "SW_UPDATED",
+        version: CACHE_NAME,
+        message: "نسخه جدید برنامه فعال شد",
+      });
+    })(),
   );
 });
 
-// Listen for skip waiting message from the page
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
+  if (!event.data) {
+    return;
+  }
+
+  if (event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
+    return;
+  }
+
+  if (event.data.type === "GET_VERSION") {
+    event.source?.postMessage({
+      type: "SW_VERSION",
+      version: CACHE_NAME,
+    });
   }
 });
 
-// Fetch strategy:
-// - Navigation requests: network-first with cache-only fallback (within current cache)
-// - Everything else: cache-first with network fallback, gated by shouldCache()
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
+  const { request } = event;
+
+  if (request.method !== "GET") {
     return;
   }
 
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const responseToCache = response.clone();
-            caches
-              .open(CACHE_NAME)
-              .then((cache) => cache.put(event.request, responseToCache));
-          }
-          return response;
-        })
-        .catch(() => {
-          // Network failed: try cache ONLY from current CACHE_NAME
-          // This prevents serving stale content from old cache versions
-          return caches
-            .open(CACHE_NAME)
-            .then((cache) => cache.match(event.request))
-            .then((cached) => {
-              if (cached) {
-                return cached;
-              }
-              // If not in current cache, try offline page
-              return caches.match(OFFLINE_PAGE);
-            });
-        }),
-    );
+  const url = new URL(request.url);
+
+  if (!isSameOrigin(request.url)) {
+    event.respondWith(networkOnlyWithOfflineFallback(request));
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached response if found
-      if (response) {
-        return response;
-      }
+  if (isHtmlRequest(request)) {
+    event.respondWith(networkFirstForHtml(request));
+    return;
+  }
 
-      const fetchRequest = event.request.clone();
+  if (isStaticAsset(request)) {
+    event.respondWith(cacheFirstCurrentVersionOnly(request));
+    return;
+  }
 
-      return fetch(fetchRequest)
-        .then((response) => {
-          // Don't cache if response is not valid
-          if (
-            !response ||
-            response.status !== 200 ||
-            response.type === "error"
-          ) {
-            return response;
-          }
-
-          // Check if this URL should be cached
-          if (shouldCache(event.request.url)) {
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          }
-
-          return response;
-        })
-        .catch((error) => {
-          console.log("Fetch failed:", error);
-
-          // Return offline page for navigation requests
-          if (event.request.mode === "navigate") {
-            return caches.match(OFFLINE_PAGE);
-          }
-
-          // For other requests, try to return cached version or reject
-          return caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            throw error;
-          });
-        });
-    }),
-  );
+  event.respondWith(networkOnlyWithOfflineFallback(request));
 });
 
-// Background sync event
 self.addEventListener("sync", (event) => {
   if (event.tag === "sync-data") {
     event.waitUntil(syncData());
   }
 });
 
-// Example function to sync data
 async function syncData() {
-  console.log("Syncing data...");
+  return Promise.resolve();
 }
 
-// Push notification event
 self.addEventListener("push", (event) => {
   const options = {
     body: event.data ? event.data.text() : "اعلان جدید",
@@ -268,7 +277,6 @@ self.addEventListener("push", (event) => {
   event.waitUntil(self.registration.showNotification("بدن ساز", options));
 });
 
-// Notification click event
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
