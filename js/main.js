@@ -186,107 +186,133 @@ function showInstallPrompt() {
   });
 }
 
+
 // ---------------------------------------------------------------------
-// Service Worker registration + update flow (FIXED)
+// Service Worker registration + update flow
 // ---------------------------------------------------------------------
-let newWorker;
+let waitingWorker = null;
+let isRefreshing = false;
 let updateNotificationShown = false;
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("sw.js", { updateViaCache: "none" })
-      .then((registration) => {
-        console.log("SW registered", registration);
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.register("/sw.js", {
+        updateViaCache: "none",
+      });
 
-        // Check for updates periodically
-        setInterval(() => {
-          registration.update();
-        }, 60000); // Check every minute
+      console.log("SW registered", registration);
 
-        // Check if there's already a waiting worker from a previous session
-        if (registration.waiting) {
-          newWorker = registration.waiting;
-          showUpdateNotification();
+      await registration.update();
+
+      setInterval(() => {
+        registration.update().catch((error) => {
+          console.log("SW update check failed", error);
+        });
+      }, 60000);
+
+      if (registration.waiting) {
+        waitingWorker = registration.waiting;
+        showUpdateNotification();
+      }
+
+      registration.addEventListener("updatefound", () => {
+        const installingWorker = registration.installing;
+
+        if (!installingWorker) {
+          return;
         }
 
-        // Listen for a new worker being installed
-        registration.addEventListener("updatefound", () => {
-          newWorker = registration.installing;
-          newWorker.addEventListener("statechange", () => {
-            if (
-              newWorker.state === "installed" &&
-              navigator.serviceWorker.controller
-            ) {
-              // A new service worker is ready and waiting
-              showUpdateNotification();
-            }
-          });
+        installingWorker.addEventListener("statechange", () => {
+          if (
+            installingWorker.state === "installed" &&
+            navigator.serviceWorker.controller
+          ) {
+            waitingWorker = registration.waiting || installingWorker;
+            showUpdateNotification();
+          }
         });
-      })
-      .catch((err) => {
-        console.log("SW registration failed", err);
       });
-  });
 
-  // Listen for messages from the service worker (e.g. after activate)
-  navigator.serviceWorker.addEventListener("message", (event) => {
-    if (event.data && event.data.type === "SW_UPDATED") {
-      showUpdateNotification();
+      navigator.serviceWorker.addEventListener("message", async (event) => {
+        if (!event.data) {
+          return;
+        }
+
+        if (event.data.type === "SW_UPDATED") {
+          const freshRegistration = await navigator.serviceWorker.getRegistration();
+
+          if (freshRegistration?.waiting) {
+            waitingWorker = freshRegistration.waiting;
+            showUpdateNotification();
+          }
+        }
+      });
+
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (isRefreshing) {
+          return;
+        }
+
+        isRefreshing = true;
+        window.location.reload();
+      });
+    } catch (error) {
+      console.log("SW registration failed", error);
     }
-  });
-
-  // Reload once the new worker takes control
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    window.location.reload();
   });
 }
 
 function showUpdateNotification() {
-  if (updateNotificationShown) return; // Prevent duplicate notifications
-  updateNotificationShown = true;
+  if (updateNotificationShown) {
+    return;
+  }
 
   const notification = document.getElementById("updateNotification");
-  if (notification) {
-    notification.classList.remove("hidden");
-    notification.classList.add("show");
+  if (!notification) {
+    return;
   }
+
+  updateNotificationShown = true;
+  notification.classList.remove("hidden");
+  notification.classList.add("show");
+}
+
+function hideUpdateNotification() {
+  const notification = document.getElementById("updateNotification");
+  if (!notification) {
+    return;
+  }
+
+  notification.classList.remove("show");
+  notification.classList.add("hidden");
+  updateNotificationShown = false;
 }
 
 const updateButton = document.getElementById("updateButton");
 const dismissButton = document.getElementById("dismissUpdate");
-const updateNotificationEl = document.getElementById("updateNotification");
 
 if (updateButton) {
-  updateButton.addEventListener("click", () => {
-    // Clear all caches, then hand control to the new worker and reload
-    if ("caches" in window) {
-      caches
-        .keys()
-        .then((names) => Promise.all(names.map((name) => caches.delete(name))))
-        .then(() => {
-          if (newWorker) {
-            newWorker.postMessage({ type: "SKIP_WAITING" });
-          } else {
-            window.location.reload();
-          }
-        });
-    } else {
-      window.location.reload();
+  updateButton.addEventListener("click", async () => {
+    if (!waitingWorker) {
+      const registration = await navigator.serviceWorker.getRegistration();
+
+      if (registration?.waiting) {
+        waitingWorker = registration.waiting;
+      }
     }
+
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: "SKIP_WAITING" });
+      return;
+    }
+
+    window.location.reload();
   });
 }
 
 if (dismissButton) {
   dismissButton.addEventListener("click", () => {
-    updateNotificationEl.classList.remove("show");
-    updateNotificationEl.classList.add("hidden");
-    updateNotificationShown = false; // Allow showing again if another update arrives
+    hideUpdateNotification();
   });
 }
-
-// Handle app installation
-window.addEventListener("appinstalled", () => {
-  console.log("App installed successfully");
-  deferredPrompt = null;
-});
