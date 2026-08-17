@@ -5,7 +5,7 @@ export class BottomNav {
     const items = [
       { path: '/dashboard', icon: 'fa-chart-pie', label: 'داشبورد' },
       { path: '/transactions', icon: 'fa-list', label: 'تراکنش‌ها' },
-      { label: 'دنگ', icon: 'fa-people-arrows', hash: '/debts' },
+      { path:'/debts', icon: 'fa-people-arrows',  label: 'دنگ' },
       { path: '/add', icon: 'fa-circle-plus', label: 'افزودن', isCentral: true },
       { path: '/assets', icon: 'fa-coins', label: 'دارایی‌ها' },
       { path: '/reports', icon: 'fa-chart-column', label: 'گزارش‌ها' },
