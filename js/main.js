@@ -187,14 +187,15 @@ function showInstallPrompt() {
 }
 
 // ---------------------------------------------------------------------
-// Service Worker registration + update flow
+// Service Worker registration + update flow (FIXED)
 // ---------------------------------------------------------------------
 let newWorker;
+let updateNotificationShown = false;
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("sw.js")
+      .register("sw.js", { updateViaCache: "none" })
       .then((registration) => {
         console.log("SW registered", registration);
 
@@ -202,6 +203,12 @@ if ("serviceWorker" in navigator) {
         setInterval(() => {
           registration.update();
         }, 60000); // Check every minute
+
+        // Check if there's already a waiting worker from a previous session
+        if (registration.waiting) {
+          newWorker = registration.waiting;
+          showUpdateNotification();
+        }
 
         // Listen for a new worker being installed
         registration.addEventListener("updatefound", () => {
@@ -236,6 +243,9 @@ if ("serviceWorker" in navigator) {
 }
 
 function showUpdateNotification() {
+  if (updateNotificationShown) return; // Prevent duplicate notifications
+  updateNotificationShown = true;
+
   const notification = document.getElementById("updateNotification");
   if (notification) {
     notification.classList.remove("hidden");
@@ -271,6 +281,7 @@ if (dismissButton) {
   dismissButton.addEventListener("click", () => {
     updateNotificationEl.classList.remove("show");
     updateNotificationEl.classList.add("hidden");
+    updateNotificationShown = false; // Allow showing again if another update arrives
   });
 }
 
