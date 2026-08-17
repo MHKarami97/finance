@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = "finance-v1.0.7";
+﻿const CACHE_NAME = "finance-v1.0.8";
 const OFFLINE_PAGE = "/offline.html";
 
 const urlsToCache = [
@@ -107,10 +107,13 @@ self.addEventListener("install", (event) => {
       return cache.addAll(urlsToCache);
     }),
   );
+
+  // Force the SW to skip waiting and activate immediately
+  self.skipWaiting();
 });
 
 // Activate: delete every cache that isn't the current version, claim open
-// tabs immediately, then tell them a new version is ready.
+// tabs immediately, then force reload all clients to get fresh content.
 self.addEventListener("activate", (event) => {
   const cacheWhitelist = [CACHE_NAME];
 
@@ -130,7 +133,7 @@ self.addEventListener("activate", (event) => {
       .then(() => self.clients.claim())
       .then(() =>
         self.clients.matchAll().then((clients) => {
-          clients.forEach((client) => {
+                    clients.forEach((client) => {
             client.postMessage({
               type: "SW_UPDATED",
               message: "نسخه جدید در دسترس است",
@@ -149,11 +152,8 @@ self.addEventListener("message", (event) => {
 });
 
 // Fetch strategy:
-// - Navigation requests (opening/refreshing the app): network-first, so a
-//   fresh index.html/app-shell reference is always preferred when online,
-//   falling back to cache and finally to the offline page.
-// - Everything else: cache-first with a background network update, same as
-//   before, gated by shouldCache().
+// - Navigation requests: network-first with cache-only fallback (within current cache)
+// - Everything else: cache-first with network fallback, gated by shouldCache()
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     return;
@@ -171,11 +171,20 @@ self.addEventListener("fetch", (event) => {
           }
           return response;
         })
-        .catch(() =>
-          caches
-            .match(event.request)
-            .then((cached) => cached || caches.match(OFFLINE_PAGE)),
-        ),
+        .catch(() => {
+          // Network failed: try cache ONLY from current CACHE_NAME
+          // This prevents serving stale content from old cache versions
+          return caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.match(event.request))
+            .then((cached) => {
+              if (cached) {
+                return cached;
+              }
+              // If not in current cache, try offline page
+              return caches.match(OFFLINE_PAGE);
+            });
+        }),
     );
     return;
   }
