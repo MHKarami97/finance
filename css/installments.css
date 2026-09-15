@@ -1,0 +1,172 @@
+/*
+ * Styles: Installments feature ("اقساط")
+ * Follows the same design tokens as debts.css / pages.css (theme.css
+ * variables) and the BEM naming used across the app's components.
+ */
+
+.installments-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.installment-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.installment-summary__label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.installment-summary__amount {
+  font-weight: 700;
+  color: var(--text-base);
+}
+
+.installment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.installment-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.installment-item--overdue {
+  border-color: var(--negative);
+}
+
+.installment-item__icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.installment-item__body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.installment-item__title {
+  font-weight: 600;
+  color: var(--text-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.installment-item__meta {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.installment-item__overdue {
+  color: var(--negative);
+  font-weight: 600;
+}
+
+.installment-item__card {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  direction: ltr;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.installment-item__amount {
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--text-base);
+  white-space: nowrap;
+}
+
+.installment-item__actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.date-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  background: var(--bg-surface-2);
+  color: var(--text-base);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 12px var(--space-4);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.date-box:hover,
+.date-box:focus-visible {
+  border-color: var(--accent);
+}
+
+.date-box i {
+  color: var(--text-secondary);
+}
+
+.date-box__value {
+  flex: 1;
+  text-align: right;
+}
+
+.date-box__picker {
+  margin-top: var(--space-2);
+}
+
+.date-box__picker[hidden] {
+  display: none;
+}
+
+.shamsi-picker__day {
+  color: var(--text-base);
+}
+
+.shamsi-picker__day:hover {
+  background: var(--accent);
+  color: #000000;
+}
+
+.shamsi-picker__day--selected {
+  background: var(--accent);
+  color: #000000;
+}
+
+.shamsi-picker__day--selected:hover {
+  background: var(--accent-border, var(--accent));
+  color: #000000;
+}

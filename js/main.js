@@ -20,12 +20,15 @@ import { AssetService } from "./application/AssetService.js";
 import { MarketPricesPage } from "./presentation/pages/MarketPricesPage.js";
 import { AssetsPage } from "./presentation/pages/AssetsPage.js";
 
-// --- "دنگ" (Debt-splitting) feature ---
 import { DebtPersonRepository } from "./infrastructure/repositories/DebtPersonRepository.js";
 import { DebtGroupRepository } from "./infrastructure/repositories/DebtGroupRepository.js";
 import { DebtExpenseRepository } from "./infrastructure/repositories/DebtExpenseRepository.js";
 import { DebtService } from "./application/DebtService.js";
 import { DebtsPage } from "./presentation/pages/DebtsPage.js";
+
+import { InstallmentRepository } from './infrastructure/repositories/InstallmentRepository.js';
+import { InstallmentService } from './application/InstallmentService.js';
+import { InstallmentsPage } from './presentation/pages/InstallmentsPage.js';
 
 /**
  * Composition Root (main.js)
@@ -50,10 +53,12 @@ class App {
     this.budgetRepo = new BudgetRepository();
     this.assetRepo = new AssetRepository();
 
-    // "دنگ" repositories
     this.debtPersonRepo = new DebtPersonRepository();
     this.debtGroupRepo = new DebtGroupRepository();
     this.debtExpenseRepo = new DebtExpenseRepository();
+
+    this.installmentRepo = new InstallmentRepository();
+    this.installmentService = new InstallmentService(this.installmentRepo);
 
     this.transactionService = new TransactionService(
       this.transactionRepo,
@@ -123,6 +128,9 @@ class App {
       )
       .register("/debts", () =>
         new DebtsPage({ debtService: this.debtService }).render(),
+      )
+      .register("/installments", () =>
+        new InstallmentsPage({ installmentService: this.installmentService }).render(),
       )
       .register("/about", () => new AboutPage().render());
   }

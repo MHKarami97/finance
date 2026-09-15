@@ -6,8 +6,10 @@ export class BottomNav {
       { path: '/dashboard', icon: 'fa-chart-pie', label: 'داشبورد' },
       { path: '/transactions', icon: 'fa-list', label: 'تراکنش‌ها' },
       { path:'/debts', icon: 'fa-people-arrows',  label: 'دنگ' },
+      { path: '/installments', icon: 'fa-money-check-dollar', label: 'اقساط' },
       { path: '/add', icon: 'fa-circle-plus', label: 'افزودن', isCentral: true },
       { path: '/assets', icon: 'fa-coins', label: 'دارایی‌ها' },
+      { path: '/market', icon: 'fa-money-bill-trend-up', label: 'قیمت‌ها' },
       { path: '/reports', icon: 'fa-chart-column', label: 'گزارش‌ها' },
       { path: '/settings', icon: 'fa-gear', label: 'تنظیمات' },
     ];
