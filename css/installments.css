@@ -7,37 +7,56 @@
 .installments-page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
-.installment-summary {
+/* ---------------- Top summary cards ---------------- */
+.installment-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.installment-summary-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-4) var(--space-5);
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3) var(--space-3);
   border-radius: var(--radius-md);
   background: var(--bg-card);
+  text-align: center;
 }
 
-.installment-summary__label {
+.installment-summary-card__label {
+  font-size: 0.72rem;
   color: var(--text-secondary);
-  font-size: 0.9rem;
 }
 
-.installment-summary__amount {
+.installment-summary-card__amount {
   font-weight: 700;
+  font-size: 0.95rem;
   color: var(--text-base);
 }
 
+.installment-summary-card__amount--positive {
+  color: var(--accent);
+}
+
+.installment-summary-card__amount--negative {
+  color: var(--negative);
+}
+
+/* ---------------- Item list ---------------- */
 .installment-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  padding-bottom: 50px;
 }
 
 .installment-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
@@ -66,7 +85,14 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 2px;
+  gap: 4px;
+}
+
+.installment-item__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 .installment-item__title {
@@ -75,6 +101,14 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.installment-item__badge {
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
 }
 
 .installment-item__meta {
@@ -96,25 +130,210 @@
   gap: 4px;
 }
 
-.installment-item__amount {
+.installment-item__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 10px;
+}
+
+.installment-item__progress-bar {
+  width: 100%;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface-2);
+  overflow: hidden;
+}
+
+.installment-item__progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+  transition: width var(--transition-base);
+}
+
+.installment-item__progress-label {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.installment-item__row-actions {
+  margin-top: var(--space-1);
+}
+
+.installment-item__amount-col {
   flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.installment-item__amount {
   font-weight: 700;
   color: var(--text-base);
+  white-space: nowrap;
+}
+
+.installment-item__sub-amount {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
   white-space: nowrap;
 }
 
 .installment-item__actions {
   flex: 0 0 auto;
   display: flex;
+  flex-direction: column;
   gap: var(--space-2);
 }
 
+.icon-btn--success {
+  color: var(--accent);
+}
+
+.btn--small {
+  padding: 6px var(--space-3);
+  font-size: 0.78rem;
+}
+
+/* ---------------- Finished ("تمام‌شده") section ---------------- */
+.installment-completed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.installment-completed .installment-item {
+  opacity: 0.75;
+}
+
+.installment-completed__total {
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------------- Schedule checklist modal ---------------- */
+.installment-schedule__summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.installment-schedule__summary-remaining {
+  color: var(--negative);
+}
+
+.installment-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.installment-schedule__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.installment-schedule__row--overdue {
+  border-color: var(--negative);
+}
+
+.installment-schedule__row--paid {
+  opacity: 0.6;
+}
+
+.installment-schedule__row--paid .installment-schedule__date,
+.installment-schedule__row--paid .installment-schedule__amount {
+  text-decoration: line-through;
+}
+
+.installment-schedule__checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.installment-schedule__badge {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.installment-schedule__row--paid .installment-schedule__badge {
+  background: var(--accent);
+  color: #000000;
+}
+
+.installment-schedule__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.installment-schedule__date {
+  font-size: 0.85rem;
+  color: var(--text-base);
+}
+
+.installment-schedule__status {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.installment-schedule__status--paid {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.installment-schedule__status--overdue {
+  color: var(--negative);
+  font-weight: 600;
+}
+
+.installment-schedule__amount {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Dynamic field visibility toggling inside InstallmentFormModal */
 .form__field {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
+/* ---------------- Collapsible date box ---------------- */
 .date-box {
   display: flex;
   align-items: center;
@@ -152,6 +371,11 @@
   display: none;
 }
 
+/*
+ * Fix: the current-day cell (colored with --accent green) lost its text
+ * on hover because only `background` was overridden, not `color` — the
+ * dark hover background made the still-dark text invisible.
+ */
 .shamsi-picker__day {
   color: var(--text-base);
 }
@@ -169,4 +393,10 @@
 .shamsi-picker__day--selected:hover {
   background: var(--accent-border, var(--accent));
   color: #000000;
+}
+
+@media (max-width: 380px) {
+  .installment-summary-grid {
+    grid-template-columns: 1fr;
+  }
 }

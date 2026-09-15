@@ -14,12 +14,23 @@ export const INSTALLMENT_KINDS = {
  * Declares which optional fields are relevant for each kind (Strategy-like
  * lookup table). Consumed by both the entity (defensive normalization) and
  * the presentation form (dynamic field visibility) so the two layers never
- * drift out of sync.
+ * drift out of sync. `perInstallmentAmount` / `installmentCount` (and the
+ * derived paid-checklist) only make sense for the "installment" kind, since
+ * only that kind is paid off in fixed monthly chunks.
  */
 export const INSTALLMENT_FIELD_MAP = {
-  installment: { receivedDate: true, endDate: true, installmentDate: true, interestRate: true, cardNumber: true },
-  loan: { receivedDate: true, endDate: true, installmentDate: false, interestRate: true, cardNumber: true },
-  bill: { receivedDate: false, endDate: true, installmentDate: false, interestRate: false, cardNumber: true },
+  installment: {
+    receivedDate: true, endDate: true, installmentDate: true, interestRate: true, cardNumber: true,
+    perInstallmentAmount: true, installmentCount: true,
+  },
+  loan: {
+    receivedDate: true, endDate: true, installmentDate: false, interestRate: true, cardNumber: true,
+    perInstallmentAmount: false, installmentCount: false,
+  },
+  bill: {
+    receivedDate: false, endDate: true, installmentDate: false, interestRate: false, cardNumber: true,
+    perInstallmentAmount: false, installmentCount: false,
+  },
 };
 
 /**
@@ -29,11 +40,21 @@ export const INSTALLMENT_FIELD_MAP = {
  * ("قبض"). Enforces its own invariants and normalizes fields that are not
  * applicable to the given `kind` to null, so the rest of the app never has
  * to re-check "is this field meaningful for this kind?" itself.
+ *
+ * For kind === 'installment', `paidInstallments` is a boolean checklist
+ * (one entry per month) always kept in sync with `installmentCount` — it
+ * is re-padded/truncated on every reconstruction so changing the count
+ * later never leaves the array out of range.
+ *
+ * `completed` / `completedAt` apply to every kind: they represent the
+ * user explicitly marking the whole obligation as paid off ("اتمام"),
+ * which moves it out of the active totals into the finished section.
  */
 export class Installment {
   constructor({
     id, kind, title, description, receivedDate, endDate, installmentDate,
-    amount, interestRate, cardNumber, createdAt,
+    amount, interestRate, cardNumber, perInstallmentAmount, installmentCount,
+    paidInstallments, completed, completedAt, createdAt,
   }) {
     if (!Object.keys(INSTALLMENT_KINDS).includes(kind)) {
       throw new Error(`Invalid installment kind: ${kind}`);
@@ -53,6 +74,22 @@ export class Installment {
     this.installmentDate = fields.installmentDate ? (installmentDate || null) : null;
     this.interestRate = fields.interestRate ? (interestRate ?? null) : null;
     this.cardNumber = fields.cardNumber ? (cardNumber || null) : null;
+
+    this.perInstallmentAmount = fields.perInstallmentAmount
+      ? Math.round(perInstallmentAmount || 0) || null
+      : null;
+    this.installmentCount = fields.installmentCount
+      ? Math.max(Math.round(installmentCount || 0), 0) || null
+      : null;
+
+    const count = this.installmentCount || 0;
+    const providedPaid = Array.isArray(paidInstallments) ? paidInstallments : [];
+    this.paidInstallments = fields.installmentCount
+      ? Array.from({ length: count }, (_, i) => Boolean(providedPaid[i]))
+      : [];
+
+    this.completed = Boolean(completed);
+    this.completedAt = completedAt || null;
     this.createdAt = createdAt || new Date().toISOString();
   }
 
@@ -71,6 +108,16 @@ export class Installment {
   /** The date most relevant for "when is the next payment due" purposes. */
   get dueDate() {
     return this.installmentDate || this.endDate || null;
+  }
+
+  /** Number of monthly installments already checked off (kind === 'installment' only). */
+  get paidCount() {
+    return this.paidInstallments.filter(Boolean).length;
+  }
+
+  /** Number of monthly installments still outstanding (kind === 'installment' only). */
+  get remainingCount() {
+    return Math.max((this.installmentCount || 0) - this.paidCount, 0);
   }
 
   toJSON() {
