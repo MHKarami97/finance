@@ -30,6 +30,10 @@ import { InstallmentRepository } from './infrastructure/repositories/Installment
 import { InstallmentService } from './application/InstallmentService.js';
 import { InstallmentsPage } from './presentation/pages/InstallmentsPage.js';
 
+import { LotteryRepository } from './infrastructure/repositories/LotteryRepository.js';
+import { LotteryService } from './application/LotteryService.js';
+import { LotteryPage } from './presentation/pages/LotteryPage.js';
+
 /**
  * Composition Root (main.js)
  * The single place where concrete implementations are instantiated and
@@ -76,6 +80,9 @@ class App {
       this.debtGroupRepo,
       this.debtExpenseRepo,
     );
+
+    this.lotteryRepo = new LotteryRepository();
+    this.lotteryService = new LotteryService(this.lotteryRepo, this.debtService);
 
     this.outlet = document.getElementById("view-outlet");
     this.bottomNavSlot = document.getElementById("bottom-nav-slot");
@@ -131,6 +138,9 @@ class App {
       )
       .register("/installments", () =>
         new InstallmentsPage({ installmentService: this.installmentService }).render(),
+      )
+      .register("/lottery", () =>
+        new LotteryPage({ lotteryService: this.lotteryService }).render(),
       )
       .register("/about", () => new AboutPage().render());
   }

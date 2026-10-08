@@ -1,3 +1,5 @@
+import { BackupService } from './BackupService.js';
+
 /**
  * Application Service: ExportService
  * Produces downloadable exports of user financial data (Strategy Pattern:
@@ -7,21 +9,20 @@ export class ExportService {
   #transactionRepo;
   #categoryRepo;
   #walletRepo;
+  #backupService;
 
-  constructor(transactionRepo, categoryRepo, walletRepo) {
+  constructor(transactionRepo, categoryRepo, walletRepo, backupService = new BackupService()) {
+    this.#backupService = backupService;
     this.#transactionRepo = transactionRepo;
     this.#categoryRepo = categoryRepo;
     this.#walletRepo = walletRepo;
   }
 
+  /** Full backup of every stored feature (transactions, assets, debts, installments, lottery, theme...). */
   exportToJson() {
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      transactions: this.#transactionRepo.getAll().map((t) => t.toJSON()),
-      categories: this.#categoryRepo.getAll(),
-      wallets: this.#walletRepo.getAll(),
-    };
-    this.#download(JSON.stringify(payload, null, 2), 'application/json', 'financial-backup.json');
+    const now = new Date();
+    const payload = this.#backupService.createBackup(now);
+    this.#download(JSON.stringify(payload, null, 2), 'application/json', this.#backupService.fileName(now));
   }
 
   exportToCsv(JalaliCalendar) {
@@ -44,8 +45,8 @@ export class ExportService {
   }
 
   importFromJson(jsonText) {
-    const data = JSON.parse(jsonText);
-    return data;
+    const { data, mode } = this.#backupService.parse(jsonText);
+    this.#backupService.restore(data, mode);
   }
 
   #download(content, mime, filename) {

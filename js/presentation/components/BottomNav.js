@@ -4,14 +4,14 @@ export class BottomNav {
     nav.className = 'bottom-nav';
     const items = [
       { path: '/dashboard', icon: 'fa-chart-pie', label: 'داشبورد' },
-      { path: '/transactions', icon: 'fa-list', label: 'تراکنش‌ها' },
+      { path: '/transactions', icon: 'fa-list', label: 'تراکنش' },
       { path:'/debts', icon: 'fa-people-arrows',  label: 'دنگ' },
       { path: '/installments', icon: 'fa-money-check-dollar', label: 'اقساط' },
       { path: '/add', icon: 'fa-circle-plus', label: 'افزودن', isCentral: true },
-      { path: '/assets', icon: 'fa-coins', label: 'دارایی‌ها' },
-      { path: '/market', icon: 'fa-money-bill-trend-up', label: 'قیمت‌ها' },
+      { path: '/assets', icon: 'fa-coins', label: 'دارایی' },
+      { path: '/market', icon: 'fa-money-bill-trend-up', label: 'قیمت' },
       { path: '/reports', icon: 'fa-chart-column', label: 'گزارش‌ها' },
-      { path: '/settings', icon: 'fa-gear', label: 'تنظیمات' },
+      { path: '/lottery', icon: 'fa-dice', label: 'قرعه‌کشی' },
     ];
     items.forEach((item) => {
       const a = document.createElement('a');

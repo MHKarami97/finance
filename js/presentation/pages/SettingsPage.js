@@ -1,6 +1,7 @@
 import { TopBar } from '../components/TopBar.js';
 import { StorageGateway } from '../../infrastructure/StorageGateway.js';
 import { ThemeManager } from '../../infrastructure/ThemeManager.js';
+import { BackupService } from '../../application/BackupService.js';
 
 /**
  * Page: SettingsPage
@@ -9,8 +10,9 @@ import { ThemeManager } from '../../infrastructure/ThemeManager.js';
  * this page is the user's control panel for their own data sovereignty.
  */
 export class SettingsPage {
-  constructor({ exportService, walletRepo, router }) {
+  constructor({ exportService, walletRepo, router, backupService = new BackupService() }) {
     this.exportService = exportService;
+    this.backupService = backupService;
     this.walletRepo = walletRepo;
     this.router = router;
   }
@@ -86,19 +88,28 @@ export class SettingsPage {
     });
 
     content.querySelector('#import-file').addEventListener('change', (e) => {
-      const file = e.target.files[0];
+      const input = e.target;
+      const file = input.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          const data = JSON.parse(reader.result);
-          if (data.transactions) StorageGateway.write('transactions', data.transactions);
-          if (data.categories) StorageGateway.write('categories', data.categories);
-          if (data.wallets) StorageGateway.write('wallets', data.wallets);
+          const { data, mode } = this.backupService.parse(reader.result);
+          const lines = this.backupService.summarize(data)
+            .map((item) => `• ${item.label}${item.count === null ? '' : `: ${item.count}`}`)
+            .join('\n');
+          const warning = mode === 'replace'
+            ? 'همه اطلاعات فعلی با محتوای این فایل جایگزین می‌شود.'
+            : 'این فایل پشتیبان قدیمی است و فقط بخش‌های زیر را جایگزین می‌کند.';
+          if (!confirm(`${warning}\n\n${lines}\n\nادامه می‌دهید؟`)) return;
+
+          this.backupService.restore(data, mode);
           alert('اطلاعات با موفقیت بازیابی شد. صفحه مجدداً بارگذاری می‌شود.');
           window.location.reload();
         } catch (err) {
-          alert('فایل نامعتبر است.');
+          alert(`بازیابی انجام نشد: ${err.message}`);
+        } finally {
+          input.value = '';
         }
       };
       reader.readAsText(file);

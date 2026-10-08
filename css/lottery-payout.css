@@ -1,0 +1,22 @@
+/* Additions for loan payouts ("دریافت وام") in the lottery feature. Loaded after lottery.css. */
+
+.lottery-stats--3 { grid-template-columns: repeat(3, 1fr); }
+.lottery-stats--3 .lottery-stat__label { font-size: 0.68rem; }
+
+.lottery-month__section-title {
+  display: flex; align-items: center; gap: var(--space-2);
+  font-size: 0.75rem; font-weight: 700; color: var(--text-secondary);
+  padding: var(--space-1) var(--space-1) 0;
+}
+.lottery-month__section-title .fa-trophy { color: var(--warning); }
+
+.lottery-payer--received { background: color-mix(in srgb, var(--warning) 12%, var(--bg-surface-2)); }
+.lottery-payer--received .lottery-payer__amount { opacity: 0.7; }
+
+.lottery-month__progress { font-size: 0.7rem; color: var(--text-tertiary); }
+
+.lottery-dot--payout { background: var(--warning); }
+.lottery-line__payout { stroke: var(--warning); }
+
+.lottery-person-bar__foot { flex-wrap: wrap; }
+.lottery-person-bar__foot .fa-trophy { color: var(--warning); }
