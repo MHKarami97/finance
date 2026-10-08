@@ -27,77 +27,123 @@ export class SecureRandom {
 }
 
 /**
- * Strategy interface. Each strategy returns
- * { assignments: string[][], conflicts: number } where assignments[m] lists
- * the personIds who win in month m + 1.
+ * Strategy interface. A "unit" is one winner unit of a month: either a single
+ * full entry [{ personId, portion: 1 }] or a pair of half entries of two
+ * different people. Every strategy returns
+ * { assignments: Entry[][], conflicts: number } where assignments[m] holds the
+ * entries of month m + 1 (W units per month).
  */
 export class LotteryDrawStrategy {
   draw(_pool) {
     throw new Error('Not implemented');
   }
 
-  static expandShares(participants) {
-    return participants.flatMap((p) => Array(p.shares).fill(p.personId));
+  static fullUnits(participants) {
+    return participants.flatMap((p) => (
+      Array.from({ length: Math.floor(p.shares) }, () => [{ personId: p.personId, portion: 1 }])
+    ));
   }
 
-  static chunk(sequence, size) {
+  static halfEntries(participants) {
+    return participants
+      .filter((p) => !Number.isInteger(p.shares))
+      .map((p) => ({ personId: p.personId, portion: 0.5 }));
+  }
+
+  /** Randomly pairs the half entries (all belong to different people). */
+  static randomPairs(halves) {
+    const shuffled = SecureRandom.shuffle(halves);
+    const pairs = [];
+    for (let i = 0; i + 1 < shuffled.length; i += 2) pairs.push([shuffled[i], shuffled[i + 1]]);
+    return pairs;
+  }
+
+  /** Groups units into months of `size` units and flattens each month into its entries. */
+  static toMonths(units, size) {
     const months = [];
-    for (let i = 0; i < sequence.length; i += size) months.push(sequence.slice(i, i + size));
+    for (let i = 0; i < units.length; i += size) months.push(units.slice(i, i + size).flat());
     return months;
   }
 }
 
-/** A person's shares are drawn back-to-back; only the order of people is random. */
+/** A person's units are drawn back-to-back; only the order of people is random. */
 export class ConsecutiveDrawStrategy extends LotteryDrawStrategy {
   draw(pool) {
-    const sequence = LotteryDrawStrategy.expandShares(SecureRandom.shuffle(pool.participants));
-    return { assignments: LotteryDrawStrategy.chunk(sequence, pool.winnersPerMonth), conflicts: 0 };
+    const units = [];
+    let pendingHalf = null;
+
+    for (const p of SecureRandom.shuffle(pool.participants)) {
+      if (!Number.isInteger(p.shares)) {
+        const half = { personId: p.personId, portion: 0.5 };
+        if (pendingHalf) {
+          units.push([pendingHalf, half]);
+          pendingHalf = null;
+        } else {
+          pendingHalf = half;
+        }
+      }
+      for (let i = 0; i < Math.floor(p.shares); i += 1) units.push([{ personId: p.personId, portion: 1 }]);
+    }
+    return { assignments: LotteryDrawStrategy.toMonths(units, pool.winnersPerMonth), conflicts: 0 };
   }
 }
 
 /**
  * Random order where the same person should not win in the same or in
- * adjacent months. Solved with a randomized hill-climb (swap two slots,
- * keep the swap if conflicts do not increase). Best effort: when a person
- * holds too many shares for the constraint to be satisfiable, the remaining
- * conflict count is returned so the UI can tell the user.
+ * adjacent months. Randomized hill-climb over two moves: swap two units, or
+ * swap a half entry between two half pairs; a move is kept if conflicts do not
+ * increase. Best effort: the remaining conflict count is returned so the UI
+ * can tell the user when the constraint is unsatisfiable.
  */
 export class SpreadDrawStrategy extends LotteryDrawStrategy {
   static #MAX_ITERATIONS = 5000;
 
   draw(pool) {
-    const sequence = SecureRandom.shuffle(LotteryDrawStrategy.expandShares(pool.participants));
     const size = pool.winnersPerMonth;
-    let conflicts = SpreadDrawStrategy.countConflicts(LotteryDrawStrategy.chunk(sequence, size));
+    const pairs = LotteryDrawStrategy.randomPairs(LotteryDrawStrategy.halfEntries(pool.participants));
+    const units = SecureRandom.shuffle([...LotteryDrawStrategy.fullUnits(pool.participants), ...pairs]);
+    const evaluate = () => SpreadDrawStrategy.countConflicts(LotteryDrawStrategy.toMonths(units, size));
 
+    let conflicts = evaluate();
     for (let i = 0; i < SpreadDrawStrategy.#MAX_ITERATIONS && conflicts > 0; i += 1) {
-      const a = SecureRandom.int(sequence.length);
-      const b = SecureRandom.int(sequence.length);
-      if (sequence[a] === sequence[b]) continue;
+      const swapHalves = pairs.length > 1 && SecureRandom.int(10) < 3;
+      let undo;
 
-      [sequence[a], sequence[b]] = [sequence[b], sequence[a]];
-      const next = SpreadDrawStrategy.countConflicts(LotteryDrawStrategy.chunk(sequence, size));
-      if (next <= conflicts) {
-        conflicts = next;
+      if (swapHalves) {
+        const a = pairs[SecureRandom.int(pairs.length)];
+        const b = pairs[SecureRandom.int(pairs.length)];
+        if (a === b) continue;
+        const ia = SecureRandom.int(2);
+        const ib = SecureRandom.int(2);
+        [a[ia], b[ib]] = [b[ib], a[ia]];
+        undo = () => { [a[ia], b[ib]] = [b[ib], a[ia]]; };
       } else {
-        [sequence[a], sequence[b]] = [sequence[b], sequence[a]];
+        const a = SecureRandom.int(units.length);
+        const b = SecureRandom.int(units.length);
+        if (a === b) continue;
+        [units[a], units[b]] = [units[b], units[a]];
+        undo = () => { [units[a], units[b]] = [units[b], units[a]]; };
       }
+
+      const next = evaluate();
+      if (next <= conflicts) conflicts = next;
+      else undo();
     }
-    return { assignments: LotteryDrawStrategy.chunk(sequence, size), conflicts };
+    return { assignments: LotteryDrawStrategy.toMonths(units, size), conflicts };
   }
 
   static countConflicts(months) {
     let conflicts = 0;
-    months.forEach((winners, index) => {
+    months.forEach((entries, index) => {
       const inMonth = new Set();
-      winners.forEach((id) => {
-        if (inMonth.has(id)) conflicts += 1;
-        inMonth.add(id);
+      entries.forEach(({ personId }) => {
+        if (inMonth.has(personId)) conflicts += 1;
+        inMonth.add(personId);
       });
       if (index === 0) return;
-      const previous = new Set(months[index - 1]);
-      inMonth.forEach((id) => {
-        if (previous.has(id)) conflicts += 1;
+      const previous = new Set(months[index - 1].map((e) => e.personId));
+      inMonth.forEach((personId) => {
+        if (previous.has(personId)) conflicts += 1;
       });
     });
     return conflicts;

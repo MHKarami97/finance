@@ -88,9 +88,10 @@ export class LotteryService {
   describeIssue(issue) {
     const names = this.peopleNames();
     switch (issue.type) {
-      case 'winners': return `ماه ${issue.month} باید دقیقاً ${issue.expected} برنده داشته باشد`;
-      case 'shares': return `«${names.get(issue.personId) ?? '—'}» ${issue.actual} بار انتخاب شده ولی ${issue.expected} سهم دارد`;
-      case 'unknown': return `در ماه ${issue.month} فرد نامعتبر انتخاب شده است`;
+      case 'winners': return `مجموع سهم برندگان ماه ${issue.month} باید دقیقاً ${issue.expected} باشد (هر نیم‌سهم ۰٫۵ حساب می‌شود)`;
+      case 'pair': return `در ماه ${issue.month} یک نفر دو بار به‌عنوان نیم‌سهم انتخاب شده است`;
+      case 'shares': return `«${names.get(issue.personId) ?? '—'}» با ${issue.actual} سهم انتخاب شده ولی ${issue.expected} سهم دارد (سهم کامل‌ها و نیم‌سهم او باید جدا رعایت شود)`;
+      case 'unknown': return `در ماه ${issue.month} فرد یا مقدار نامعتبر انتخاب شده است`;
       default: return 'ترتیب برندگان معتبر نیست';
     }
   }
@@ -148,11 +149,12 @@ export class LotteryService {
         payment: pool.findPayment(month, p.personId),
       }));
 
-      const winnerSlots = pool.winnersOf(month).map((personId, slot) => ({
+      const winnerSlots = pool.winnersOf(month).map((entry, slot) => ({
         slot,
-        personId,
-        name: names.get(personId) ?? '—',
-        amount: pool.totalAmount,
+        personId: entry.personId,
+        portion: entry.portion,
+        name: names.get(entry.personId) ?? '—',
+        amount: pool.payoutAmountOf(month, slot),
         payout: pool.findPayout(month, slot),
       }));
 
@@ -162,12 +164,11 @@ export class LotteryService {
       const payoutsDone = winnerSlots.filter((s) => s.payout).length;
       runningExpected += expected;
       runningCollected += collected;
-      runningPaidOut += payoutsDone * pool.totalAmount;
+      runningPaidOut += winnerSlots.reduce((sum, s) => sum + (s.payout ? s.amount : 0), 0);
 
       return {
         month,
         dueISO,
-        winners: pool.winnersOf(month),
         winnerSlots,
         payers,
         expected,
@@ -201,6 +202,7 @@ export class LotteryService {
         paidCount: rows.filter((r) => r.payment).length,
         totalCount: rows.length,
         receivedCount: pool.payouts.filter((x) => x.personId === p.personId).length,
+        slotCount: Math.ceil(p.shares),
       };
     });
 
@@ -208,8 +210,8 @@ export class LotteryService {
     const totalCollected = months.reduce((sum, m) => sum + m.collected, 0);
     const totalOverdue = months.reduce((sum, m) => sum + m.overdueAmount, 0);
     const payoutsDone = months.reduce((sum, m) => sum + m.payoutsDone, 0);
-    const totalPaidOut = payoutsDone * pool.totalAmount;
-    const totalPayoutExpected = pool.totalPayoutSlots * pool.totalAmount;
+    const totalPaidOut = months.at(-1)?.cumulativePaidOut ?? 0;
+    const totalPayoutExpected = pool.totalAmount * pool.totalMonths * pool.winnersPerMonth;
 
     return {
       months,
@@ -224,7 +226,7 @@ export class LotteryService {
       payoutsDone,
       totalPaidOut,
       totalPayoutRemaining: totalPayoutExpected - totalPaidOut,
-      payoutPercent: pool.totalPayoutSlots ? Math.round((payoutsDone / pool.totalPayoutSlots) * 100) : 0,
+      payoutPercent: totalPayoutExpected ? Math.round((totalPaidOut / totalPayoutExpected) * 100) : 0,
       cashOnHand: totalCollected - totalPaidOut,
     };
   }

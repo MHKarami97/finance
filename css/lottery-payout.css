@@ -1,4 +1,4 @@
-/* Additions for loan payouts ("دریافت وام") in the lottery feature. Loaded after lottery.css. */
+/* Additions for loan payouts ("دریافت وام") and half shares in the lottery feature. Loaded after lottery.css. */
 
 .lottery-stats--3 { grid-template-columns: repeat(3, 1fr); }
 .lottery-stats--3 .lottery-stat__label { font-size: 0.68rem; }
@@ -20,3 +20,21 @@
 
 .lottery-person-bar__foot { flex-wrap: wrap; }
 .lottery-person-bar__foot .fa-trophy { color: var(--warning); }
+
+/* ---------- Half shares ---------- */
+.lottery-form__note { font-size: 0.75rem; line-height: 1.8; color: var(--text-secondary); }
+
+.lottery-half-tag {
+  display: inline-block; margin-inline-start: 4px; padding: 1px 6px; border-radius: var(--radius-pill);
+  font-size: 0.66rem; font-weight: 700; background: color-mix(in srgb, var(--warning) 20%, transparent); color: var(--warning);
+}
+
+.lottery-unit {
+  flex: 1 1 200px; display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-2); border-radius: var(--radius-md); background: var(--bg-surface-2);
+}
+.lottery-unit__split-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; }
+.lottery-unit__split-toggle input { accent-color: var(--accent); }
+.lottery-unit__halves { display: flex; gap: var(--space-2); }
+.lottery-unit__halves .input, .lottery-unit__halves > span { flex: 1 1 0; min-width: 0; }
+.lottery-unit__halves > span[hidden] { display: none; }

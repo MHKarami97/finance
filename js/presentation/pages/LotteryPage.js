@@ -8,6 +8,7 @@ import { HtmlSanitizer } from '../utils/HtmlSanitizer.js';
 import { JalaliCalendar } from '../../infrastructure/calendar/JalaliCalendar.js';
 
 const TAB = Object.freeze({ SCHEDULE: 'schedule', REPORT: 'report' });
+const HALF_TAG = '<span class="lottery-half-tag">نصف</span>';
 
 /**
  * Page: LotteryPage ("قرعه‌کشی قرض‌الحسنه")
@@ -93,7 +94,7 @@ export class LotteryPage {
             <span class="lottery-card__title">${HtmlSanitizer.escape(pool.title)}</span>${badge}
           </div>
           <span class="lottery-card__meta">
-            ${AmountFormat.number(pool.totalMonths)} ماه · ${AmountFormat.number(pool.totalShares)} سهم · شروع ${JalaliCalendar.formatISOToJalali(pool.startDate)}
+            ${AmountFormat.number(pool.totalMonths)} ماه · ${AmountFormat.decimal(pool.totalShares)} سهم · شروع ${JalaliCalendar.formatISOToJalali(pool.startDate)}
           </span>
           <span class="lottery-card__amount">${AmountFormat.toman(pool.totalAmount)}</span>
           ${summary ? `
@@ -134,9 +135,15 @@ export class LotteryPage {
       <div class="lottery-stats">
         ${stat('مبلغ وام هر نوبت', AmountFormat.toman(pool.totalAmount))}
         ${stat('قسط ماهانه هر سهم', AmountFormat.toman(pool.perShareAmount))}
-        ${stat('تعداد ماه / سهم', `${AmountFormat.number(pool.totalMonths)} / ${AmountFormat.number(pool.totalShares)}`)}
+        ${stat('تعداد ماه / سهم', `${AmountFormat.number(pool.totalMonths)} / ${AmountFormat.decimal(pool.totalShares)}`)}
         ${stat('برنده در هر ماه', AmountFormat.number(pool.winnersPerMonth))}
       </div>`;
+  }
+
+  /** "Name" for a full entry, "Name [نصف]" for a half entry. */
+  #entryHtml(entry, names) {
+    const name = HtmlSanitizer.escape(names.get(entry.personId) ?? '—');
+    return entry.portion < 1 ? `${name}${HALF_TAG}` : name;
   }
 
   #draftHtml(pool, names) {
@@ -144,17 +151,17 @@ export class LotteryPage {
     const people = pool.participants.map((p) => `
       <div class="lottery-person-line">
         <span>${nameOf(p.personId)}</span>
-        <span class="lottery-person-line__meta">${AmountFormat.number(p.shares)} سهم · ${AmountFormat.toman(pool.dueAmountOf(p.personId))} در ماه</span>
+        <span class="lottery-person-line__meta">${AmountFormat.decimal(p.shares)} سهم · ${AmountFormat.toman(pool.dueAmountOf(p.personId))} در ماه</span>
       </div>`).join('');
 
     const preview = pool.hasDraw ? `
       <section class="section-header"><h2>ترتیب دریافت وام</h2></section>
       <div class="lottery-order">
-        ${pool.assignments.map((winners, i) => `
+        ${pool.assignments.map((entries, i) => `
           <div class="lottery-order__row">
             <span class="lottery-order__month">${AmountFormat.number(i + 1)}</span>
             <span class="lottery-order__date">${JalaliCalendar.formatISOToJalali(pool.dueDateOf(i + 1))}</span>
-            <span class="lottery-order__names">${winners.map(nameOf).join('، ')}</span>
+            <span class="lottery-order__names">${entries.map((e) => this.#entryHtml(e, names)).join('، ')}</span>
           </div>`).join('')}
       </div>
       <button type="button" class="btn btn--primary btn--full" data-action="start">نهایی‌کردن و شروع وام</button>
@@ -166,6 +173,7 @@ export class LotteryPage {
       <p class="lottery-hint lottery-hint--info">
         <i class="fa-solid fa-circle-info"></i>
         ${pool.keepWinnerConsecutive ? 'سهم‌های هر فرد پشت‌سرهم قرعه می‌خورد.' : 'سهم‌های هر فرد تا حد امکان در ماه‌های غیرمتوالی پخش می‌شود.'}
+        ${pool.hasHalfShares ? 'نیم‌سهم‌ها دو به دو در یک نوبت برنده می‌شوند و هر کدام نصف وام را می‌گیرند.' : ''}
       </p>
       <div class="lottery-actions">
         <button type="button" class="btn btn--primary" data-action="draw-random"><i class="fa-solid fa-shuffle"></i> قرعه‌کشی تصادفی</button>
@@ -178,10 +186,13 @@ export class LotteryPage {
   #scheduleHtml(pool) {
     const report = this.#service.buildReport(pool);
     const firstOpen = report.months.find((m) => m.paidCount < m.payers.length || m.payoutsDone < m.winnerSlots.length)?.month;
+    const monthAmount = pool.totalAmount * pool.winnersPerMonth;
 
     return `<div class="lottery-months">${report.months.map((m) => {
       const isOpen = this.#openMonths.has(m.month) || (this.#openMonths.size === 0 && m.month === firstOpen);
-      const winnerNames = m.winnerSlots.map((s) => HtmlSanitizer.escape(s.name)).join('، ');
+      const winnerNames = m.winnerSlots
+        .map((s) => `${HtmlSanitizer.escape(s.name)}${s.portion < 1 ? HALF_TAG : ''}`)
+        .join('، ');
       const allDone = m.paidCount === m.payers.length && m.payoutsDone === m.winnerSlots.length;
       const state = allDone ? 'done' : (m.isOverdue ? 'overdue' : '');
       return `
@@ -193,7 +204,7 @@ export class LotteryPage {
               <small>${JalaliCalendar.formatISOToJalali(m.dueISO)} · ${AmountFormat.number(m.paidCount)} از ${AmountFormat.number(m.payers.length)} قسط</small>
               <small class="lottery-month__progress">وام: ${AmountFormat.number(m.payoutsDone)} از ${AmountFormat.number(m.winnerSlots.length)} تحویل شد</small>
             </div>
-            <span class="lottery-month__amount">${AmountFormat.number(pool.totalAmount * m.winnerSlots.length)}</span>
+            <span class="lottery-month__amount">${AmountFormat.number(monthAmount)}</span>
           </summary>
           <div class="lottery-month__payers">
             <div class="lottery-month__section-title"><i class="fa-solid fa-trophy"></i> دریافت وام</div>
@@ -209,11 +220,11 @@ export class LotteryPage {
     const received = Boolean(slot.payout);
     const status = received
       ? `دریافت: ${JalaliCalendar.formatISOToJalali(slot.payout.receivedAt)}`
-      : 'هنوز دریافت نکرده';
+      : (slot.portion < 1 ? 'نیم‌سهم · هنوز دریافت نکرده' : 'هنوز دریافت نکرده');
     return `
       <div class="lottery-payer ${received ? 'lottery-payer--received' : ''}">
         <div class="lottery-payer__info">
-          <span>${HtmlSanitizer.escape(slot.name)} <i class="fa-solid fa-trophy"></i></span>
+          <span>${HtmlSanitizer.escape(slot.name)}${slot.portion < 1 ? HALF_TAG : ''} <i class="fa-solid fa-trophy"></i></span>
           <small>${status}</small>
         </div>
         <span class="lottery-payer__amount">${AmountFormat.number(slot.amount)}</span>
@@ -231,7 +242,7 @@ export class LotteryPage {
     return `
       <div class="lottery-payer ${payer.payment ? 'lottery-payer--paid' : ''}">
         <div class="lottery-payer__info">
-          <span>${HtmlSanitizer.escape(payer.name)}${payer.shares > 1 ? ` (${AmountFormat.number(payer.shares)} سهم)` : ''}</span>
+          <span>${HtmlSanitizer.escape(payer.name)}${payer.shares !== 1 ? ` (${AmountFormat.decimal(payer.shares)} سهم)` : ''}</span>
           <small>${status}</small>
         </div>
         <span class="lottery-payer__amount">${AmountFormat.number(payer.amount)}</span>
@@ -353,11 +364,11 @@ export class LotteryPage {
   #openPayout(month, slot) {
     const pool = this.#service.get(this.#activeId);
     const names = this.#service.peopleNames();
-    const personId = pool.winnersOf(month)[slot];
+    const entry = pool.winnersOf(month)[slot];
     LotteryPaymentModal.open({
       title: `ثبت دریافت وام ماه ${month}`,
-      personName: names.get(personId) ?? '—',
-      amount: pool.totalAmount,
+      personName: `${names.get(entry.personId) ?? '—'}${entry.portion < 1 ? ' (نیم‌سهم)' : ''}`,
+      amount: pool.payoutAmountOf(month, slot),
       dateLabel: 'تاریخ دریافت وام',
       submitLabel: 'ثبت دریافت',
       onSubmit: (iso) => this.#run(() => this.#service.recordPayout(this.#activeId, month, slot, iso)),

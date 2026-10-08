@@ -1,5 +1,6 @@
 const GROUP_FORMATTER = new Intl.NumberFormat('en-US');
 const DISPLAY_FORMATTER = new Intl.NumberFormat('fa-IR');
+const DECIMAL_FORMATTER = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 1 });
 const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 const DIGIT_PATTERN = /[0-9۰-۹]/;
 
@@ -7,6 +8,7 @@ const DIGIT_PATTERN = /[0-9۰-۹]/;
  * Presentation helper: Toman amounts.
  *  - display: Persian digits with a "," every three digits (e.g. ۱۰,۰۰۰,۰۰۰ تومان)
  *  - input:   live "10,000,000" grouping while typing, caret position preserved
+ *  - decimal: one fraction digit for share counts such as ۱٫۵
  */
 export class AmountFormat {
   static parseDigits(value) {
@@ -23,6 +25,11 @@ export class AmountFormat {
 
   static number(value) {
     return DISPLAY_FORMATTER.format(Math.round(value || 0)).replace(/٬/g, ',');
+  }
+
+  /** Keeps up to one decimal digit (share counts: ۰٫۵ / ۱ / ۱٫۵). */
+  static decimal(value) {
+    return DECIMAL_FORMATTER.format(value || 0).replace(/٬/g, ',');
   }
 
   static toman(value) {

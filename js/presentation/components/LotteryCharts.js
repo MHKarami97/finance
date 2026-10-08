@@ -79,8 +79,8 @@ export class LotteryCharts {
         <h3 class="lottery-chart-card__title">دریافت وام توسط برندگان</h3>
         <div class="lottery-donut" style="background:${gradient}">
           <div class="lottery-donut__hole">
-            <strong>${AmountFormat.number(r.payoutsDone)} / ${AmountFormat.number(r.payoutSlots)}</strong>
-            <small>نوبت تحویل‌شده</small>
+            <strong>${AmountFormat.number(r.payoutPercent)}٪</strong>
+            <small>${AmountFormat.number(r.payoutsDone)} از ${AmountFormat.number(r.payoutSlots)} نوبت</small>
           </div>
         </div>
         <div class="lottery-legend">
@@ -141,7 +141,7 @@ export class LotteryCharts {
       return `
         <div class="lottery-person-bar">
           <div class="lottery-person-bar__head">
-            <strong>${HtmlSanitizer.escape(p.name)}${p.shares > 1 ? ` (${AmountFormat.number(p.shares)} سهم)` : ''}</strong>
+            <strong>${HtmlSanitizer.escape(p.name)}${p.shares !== 1 ? ` (${AmountFormat.decimal(p.shares)} سهم)` : ''}</strong>
             <span>${AmountFormat.number(p.paidCount)} از ${AmountFormat.number(p.totalCount)} قسط</span>
           </div>
           <div class="lottery-stack">
@@ -150,7 +150,7 @@ export class LotteryCharts {
           </div>
           <div class="lottery-person-bar__foot">
             <span>پرداخت: ${AmountFormat.number(p.paid)} · مانده: ${AmountFormat.number(p.remaining)}</span>
-            <span><i class="fa-solid fa-trophy"></i> وام دریافتی: ${AmountFormat.number(p.receivedCount)} از ${AmountFormat.number(p.shares)}</span>
+            <span><i class="fa-solid fa-trophy"></i> وام دریافتی: ${AmountFormat.number(p.receivedCount)} از ${AmountFormat.number(p.slotCount)}</span>
           </div>
         </div>`;
     }).join('');

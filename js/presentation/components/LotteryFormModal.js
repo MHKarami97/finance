@@ -7,7 +7,8 @@ import { HtmlSanitizer } from '../utils/HtmlSanitizer.js';
  * Component: LotteryFormModal
  * Creates a lottery pool. Participant names are typed into an input backed by
  * a <datalist> of the saved people roster: picking a saved name reuses that
- * person, a new name is added to the roster on save.
+ * person, a new name is added to the roster on save. Share counts accept
+ * halves (0.5, 1, 1.5 ...); half shares are paired up two by two.
  */
 export class LotteryFormModal {
   static open({ knownNames, onSubmit }) {
@@ -22,7 +23,7 @@ export class LotteryFormModal {
         <label class="form__label">تعداد کل ماه‌ها</label>
         <input type="number" inputmode="numeric" min="1" max="120" step="1" class="input" id="lottery-months" placeholder="مثلاً ۱۰" />
 
-        <label class="form__label">تعداد برنده در هر ماه</label>
+        <label class="form__label">تعداد برنده (سهم کامل) در هر ماه</label>
         <input type="number" inputmode="numeric" min="1" step="1" class="input" id="lottery-winners" value="1" />
 
         ${DateBoxField.html('lottery-start', 'تاریخ شروع (شمسی)')}
@@ -37,6 +38,9 @@ export class LotteryFormModal {
           <h2>شرکت‌کنندگان</h2>
           <button type="button" class="link" id="lottery-add-person">+ افزودن نفر</button>
         </div>
+        <p class="lottery-form__note">
+          تعداد سهم می‌تواند نیمی هم باشد (۰٫۵ ، ۱ ، ۱٫۵ ، ۲٫۵ ...). نیم‌سهم‌ها دو به دو (دو نفر مختلف) در یک نوبت برنده می‌شوند و هر کدام نصف وام را می‌گیرند؛ پس تعداد افراد دارای نیم‌سهم باید زوج باشد.
+        </p>
         <datalist id="lottery-people-list">
           ${knownNames.map((n) => `<option value="${HtmlSanitizer.escape(n)}"></option>`).join('')}
         </datalist>
@@ -64,7 +68,7 @@ export class LotteryFormModal {
           row.className = 'lottery-person-row';
           row.innerHTML = `
             <input type="text" class="input" list="lottery-people-list" placeholder="نام (از لیست یا جدید)" value="${HtmlSanitizer.escape(name)}" data-field="name" />
-            <input type="number" inputmode="numeric" min="1" step="1" class="input lottery-person-row__shares" value="${shares}" data-field="shares" aria-label="تعداد سهم" />
+            <input type="number" inputmode="decimal" min="0.5" step="0.5" class="input lottery-person-row__shares" value="${shares}" data-field="shares" aria-label="تعداد سهم" />
             <button type="button" class="icon-btn icon-btn--danger" data-action="remove"><i class="fa-solid fa-xmark"></i></button>
           `;
           peopleEl.appendChild(row);
@@ -79,14 +83,18 @@ export class LotteryFormModal {
           const months = Number(monthsEl.value) || 0;
           const winners = Number(winnersEl.value) || 0;
           const amount = AmountFormat.parseDigits(amountEl.value) || 0;
-          const shares = readParticipants().reduce((sum, p) => sum + (Number.isInteger(p.shares) ? p.shares : 0), 0);
+          const people = readParticipants();
+          const shares = people.reduce((sum, p) => sum + (Number.isFinite(p.shares) ? p.shares : 0), 0);
+          const halfHolders = people.filter((p) => Number.isFinite(p.shares) && !Number.isInteger(p.shares)).length;
           const required = months * winners;
           const perShare = months ? Math.round(amount / months) : 0;
-          const ok = required > 0 && shares === required;
+          const evenHalves = halfHolders % 2 === 0;
+          const ok = required > 0 && shares === required && evenHalves;
           hintEl.className = `lottery-hint ${ok ? 'lottery-hint--ok' : 'lottery-hint--warn'}`;
           hintEl.innerHTML = `
-            <span>مجموع سهم‌ها: <strong>${AmountFormat.number(shares)}</strong> از <strong>${AmountFormat.number(required)}</strong> (ماه × برنده)</span>
-            <span>قسط ماهانه هر سهم: <strong>${AmountFormat.toman(perShare)}</strong></span>
+            <span>مجموع سهم‌ها: <strong>${AmountFormat.decimal(shares)}</strong> از <strong>${AmountFormat.number(required)}</strong> (ماه × برنده)</span>
+            <span>قسط ماهانه هر سهم کامل: <strong>${AmountFormat.toman(perShare)}</strong></span>
+            ${halfHolders > 0 ? `<span>افراد دارای نیم‌سهم: <strong>${AmountFormat.number(halfHolders)}</strong>${evenHalves ? '' : ' — باید زوج باشد'}</span>` : ''}
           `;
         };
 
