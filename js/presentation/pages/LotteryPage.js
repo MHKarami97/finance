@@ -6,9 +6,11 @@ import { LotteryCharts } from '../components/LotteryCharts.js';
 import { AmountFormat } from '../utils/AmountFormat.js';
 import { HtmlSanitizer } from '../utils/HtmlSanitizer.js';
 import { JalaliCalendar } from '../../infrastructure/calendar/JalaliCalendar.js';
+import { LotteryPool } from '../../domain/entities/LotteryPool.js';
 
 const TAB = Object.freeze({ SCHEDULE: 'schedule', REPORT: 'report' });
 const HALF_TAG = '<span class="lottery-half-tag">نصف</span>';
+const CROWN = '<i class="fa-solid fa-crown lottery-crown" title="برگزارکننده"></i>';
 
 /**
  * Page: LotteryPage ("قرعه‌کشی قرض‌الحسنه")
@@ -16,6 +18,8 @@ const HALF_TAG = '<span class="lottery-half-tag">نصف</span>';
  * detail view → draft: participants + draw (random / manual) + start
  *               active: month-by-month schedule (installment payments and
  *               loan receipt by the winner) and the report tab
+ * When a pool has an organizer, a card at the top shows who collects the
+ * installments (with a copyable card number) and pays each month's winner.
  * Sub-views are handled internally because the Router has flat routes only
  * (same approach as DebtsPage). All clicks go through one delegated handler.
  */
@@ -123,10 +127,34 @@ export class LotteryPage {
 
     this.#content.innerHTML = `
       <a href="#" class="link debt-back-link" data-action="back"><i class="fa-solid fa-arrow-right"></i> بازگشت به لیست</a>
+      ${this.#organizerHtml(pool, names)}
       ${this.#summaryHtml(pool)}
       ${tabs}
       ${body}
     `;
+  }
+
+  #organizerHtml(pool, names) {
+    if (!pool.organizerId) return '';
+    const name = HtmlSanitizer.escape(names.get(pool.organizerId) ?? '—');
+    const card = pool.organizerCardNumber;
+    return `
+      <section class="lottery-organizer">
+        <div class="lottery-organizer__info">
+          <i class="fa-solid fa-crown"></i>
+          <div>
+            <strong>برگزارکننده: ${name}</strong>
+            <small>اقساط به حساب او واریز می‌شود و او هر ماه وام را به برنده می‌دهد. نوبت اول وام همیشه با برگزارکننده است.</small>
+          </div>
+        </div>
+        <div class="lottery-organizer__row">
+          ${card ? `
+            <button type="button" class="lottery-card-number" data-action="copy-card" title="کپی شماره کارت">
+              <span>${LotteryPool.formatCardNumber(card)}</span><i class="fa-regular fa-copy"></i>
+            </button>` : '<span class="lottery-card__meta">شماره کارتی ثبت نشده است</span>'}
+          <button type="button" class="link" data-action="edit-card">${card ? 'ویرایش کارت' : 'افزودن شماره کارت'}</button>
+        </div>
+      </section>`;
   }
 
   #summaryHtml(pool) {
@@ -140,14 +168,15 @@ export class LotteryPage {
       </div>`;
   }
 
-  /** "Name" for a full entry, "Name [نصف]" for a half entry. */
-  #entryHtml(entry, names) {
+  /** "Name" for a full entry, "Name [نصف]" for a half entry, plus a crown for the organizer. */
+  #entryHtml(entry, names, pool) {
     const name = HtmlSanitizer.escape(names.get(entry.personId) ?? '—');
-    return entry.portion < 1 ? `${name}${HALF_TAG}` : name;
+    const crown = entry.personId === pool.organizerId ? CROWN : '';
+    return `${name}${crown}${entry.portion < 1 ? HALF_TAG : ''}`;
   }
 
   #draftHtml(pool, names) {
-    const nameOf = (id) => HtmlSanitizer.escape(names.get(id) ?? '—');
+    const nameOf = (id) => `${HtmlSanitizer.escape(names.get(id) ?? '—')}${id === pool.organizerId ? CROWN : ''}`;
     const people = pool.participants.map((p) => `
       <div class="lottery-person-line">
         <span>${nameOf(p.personId)}</span>
@@ -161,7 +190,7 @@ export class LotteryPage {
           <div class="lottery-order__row">
             <span class="lottery-order__month">${AmountFormat.number(i + 1)}</span>
             <span class="lottery-order__date">${JalaliCalendar.formatISOToJalali(pool.dueDateOf(i + 1))}</span>
-            <span class="lottery-order__names">${entries.map((e) => this.#entryHtml(e, names)).join('، ')}</span>
+            <span class="lottery-order__names">${entries.map((e) => this.#entryHtml(e, names, pool)).join('، ')}</span>
           </div>`).join('')}
       </div>
       <button type="button" class="btn btn--primary btn--full" data-action="start">نهایی‌کردن و شروع وام</button>
@@ -174,6 +203,7 @@ export class LotteryPage {
         <i class="fa-solid fa-circle-info"></i>
         ${pool.keepWinnerConsecutive ? 'سهم‌های هر فرد پشت‌سرهم قرعه می‌خورد.' : 'سهم‌های هر فرد تا حد امکان در ماه‌های غیرمتوالی پخش می‌شود.'}
         ${pool.hasHalfShares ? 'نیم‌سهم‌ها دو به دو در یک نوبت برنده می‌شوند و هر کدام نصف وام را می‌گیرند.' : ''}
+        ${pool.organizerId ? 'نوبت اول به برگزارکننده می‌رسد.' : ''}
       </p>
       <div class="lottery-actions">
         <button type="button" class="btn btn--primary" data-action="draw-random"><i class="fa-solid fa-shuffle"></i> قرعه‌کشی تصادفی</button>
@@ -191,7 +221,7 @@ export class LotteryPage {
     return `<div class="lottery-months">${report.months.map((m) => {
       const isOpen = this.#openMonths.has(m.month) || (this.#openMonths.size === 0 && m.month === firstOpen);
       const winnerNames = m.winnerSlots
-        .map((s) => `${HtmlSanitizer.escape(s.name)}${s.portion < 1 ? HALF_TAG : ''}`)
+        .map((s) => `${HtmlSanitizer.escape(s.name)}${s.personId === pool.organizerId ? CROWN : ''}${s.portion < 1 ? HALF_TAG : ''}`)
         .join('، ');
       const allDone = m.paidCount === m.payers.length && m.payoutsDone === m.winnerSlots.length;
       const state = allDone ? 'done' : (m.isOverdue ? 'overdue' : '');
@@ -208,15 +238,15 @@ export class LotteryPage {
           </summary>
           <div class="lottery-month__payers">
             <div class="lottery-month__section-title"><i class="fa-solid fa-trophy"></i> دریافت وام</div>
-            ${m.winnerSlots.map((s) => this.#winnerRowHtml(m, s)).join('')}
+            ${m.winnerSlots.map((s) => this.#winnerRowHtml(m, s, pool)).join('')}
             <div class="lottery-month__section-title"><i class="fa-solid fa-coins"></i> اقساط این ماه</div>
-            ${m.payers.map((p) => this.#payerRowHtml(m, p)).join('')}
+            ${m.payers.map((p) => this.#payerRowHtml(m, p, pool)).join('')}
           </div>
         </details>`;
     }).join('')}</div>`;
   }
 
-  #winnerRowHtml(month, slot) {
+  #winnerRowHtml(month, slot, pool) {
     const received = Boolean(slot.payout);
     const status = received
       ? `دریافت: ${JalaliCalendar.formatISOToJalali(slot.payout.receivedAt)}`
@@ -224,7 +254,7 @@ export class LotteryPage {
     return `
       <div class="lottery-payer ${received ? 'lottery-payer--received' : ''}">
         <div class="lottery-payer__info">
-          <span>${HtmlSanitizer.escape(slot.name)}${slot.portion < 1 ? HALF_TAG : ''} <i class="fa-solid fa-trophy"></i></span>
+          <span>${HtmlSanitizer.escape(slot.name)}${slot.personId === pool.organizerId ? CROWN : ''}${slot.portion < 1 ? HALF_TAG : ''} <i class="fa-solid fa-trophy"></i></span>
           <small>${status}</small>
         </div>
         <span class="lottery-payer__amount">${AmountFormat.number(slot.amount)}</span>
@@ -235,14 +265,14 @@ export class LotteryPage {
       </div>`;
   }
 
-  #payerRowHtml(month, payer) {
+  #payerRowHtml(month, payer, pool) {
     const status = payer.payment
       ? `پرداخت: ${JalaliCalendar.formatISOToJalali(payer.payment.paidAt)}`
       : (month.isOverdue ? '<span class="lottery-late">معوق</span>' : 'پرداخت‌نشده');
     return `
       <div class="lottery-payer ${payer.payment ? 'lottery-payer--paid' : ''}">
         <div class="lottery-payer__info">
-          <span>${HtmlSanitizer.escape(payer.name)}${payer.shares !== 1 ? ` (${AmountFormat.decimal(payer.shares)} سهم)` : ''}</span>
+          <span>${HtmlSanitizer.escape(payer.name)}${payer.personId === pool.organizerId ? CROWN : ''}${payer.shares !== 1 ? ` (${AmountFormat.decimal(payer.shares)} سهم)` : ''}</span>
           <small>${status}</small>
         </div>
         <span class="lottery-payer__amount">${AmountFormat.number(payer.amount)}</span>
@@ -278,6 +308,8 @@ export class LotteryPage {
       'draw-manual': () => this.#openManualDraw(),
       'clear-draw': () => this.#run(() => this.#service.clearDraw(this.#activeId)),
       start: () => this.#startPool(),
+      'copy-card': () => this.#copyCard(target),
+      'edit-card': () => this.#editCard(),
       pay: () => this.#openPayment(month, target.dataset.person),
       unpay: () => this.#confirmThenRun('این پرداخت لغو شود؟', () => this.#service.cancelPayment(this.#activeId, month, target.dataset.person)),
       payout: () => this.#openPayout(month, Number(target.dataset.slot)),
@@ -322,6 +354,28 @@ export class LotteryPage {
     if (confirm(message)) this.#run(action);
   }
 
+  async #copyCard(button) {
+    const digits = this.#service.get(this.#activeId)?.organizerCardNumber;
+    if (!digits) return;
+    try {
+      await navigator.clipboard.writeText(digits);
+      button.classList.add('lottery-card-number--copied');
+      setTimeout(() => button.classList.remove('lottery-card-number--copied'), 1500);
+    } catch {
+      prompt('شماره کارت را کپی کنید:', digits);
+    }
+  }
+
+  #editCard() {
+    const pool = this.#service.get(this.#activeId);
+    const answer = prompt(
+      'شماره کارت ۱۶ رقمی برگزارکننده (برای حذف، خالی بگذارید):',
+      LotteryPool.formatCardNumber(pool.organizerCardNumber ?? ''),
+    );
+    if (answer === null) return;
+    this.#run(() => this.#service.updateOrganizerCard(this.#activeId, answer));
+  }
+
   #drawRandom() {
     const pool = this.#service.get(this.#activeId);
     if (pool.hasDraw && !confirm('ترتیب فعلی با قرعه‌کشی جدید جایگزین شود؟')) return;
@@ -350,6 +404,15 @@ export class LotteryPage {
     this.#run(() => this.#service.start(this.#activeId));
   }
 
+  /** Where an installment should be transferred, as plain text for the payment dialog. */
+  #transferNote(pool, names) {
+    if (!pool.organizerId) return '';
+    const organizer = names.get(pool.organizerId) ?? '—';
+    return pool.organizerCardNumber
+      ? `واریز به کارت برگزارکننده (${organizer}): ${LotteryPool.formatCardNumber(pool.organizerCardNumber)}`
+      : `واریز به حساب برگزارکننده (${organizer})`;
+  }
+
   #openPayment(month, personId) {
     const pool = this.#service.get(this.#activeId);
     const names = this.#service.peopleNames();
@@ -357,6 +420,7 @@ export class LotteryPage {
       title: `ثبت پرداخت قسط ماه ${month}`,
       personName: names.get(personId) ?? '—',
       amount: pool.dueAmountOf(personId),
+      note: this.#transferNote(pool, names),
       onSubmit: (iso) => this.#run(() => this.#service.recordPayment(this.#activeId, month, personId, iso)),
     });
   }
@@ -369,6 +433,7 @@ export class LotteryPage {
       title: `ثبت دریافت وام ماه ${month}`,
       personName: `${names.get(entry.personId) ?? '—'}${entry.portion < 1 ? ' (نیم‌سهم)' : ''}`,
       amount: pool.payoutAmountOf(month, slot),
+      note: pool.organizerId ? `وام توسط برگزارکننده (${names.get(pool.organizerId) ?? '—'}) به برنده پرداخت می‌شود.` : '',
       dateLabel: 'تاریخ دریافت وام',
       submitLabel: 'ثبت دریافت',
       onSubmit: (iso) => this.#run(() => this.#service.recordPayout(this.#activeId, month, slot, iso)),

@@ -2,13 +2,15 @@ import { LotteryPool } from '../domain/entities/LotteryPool.js';
 import { LotteryDrawStrategyFactory } from '../domain/services/LotteryDrawStrategies.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const keyOf = (name) => String(name ?? '').trim().toLowerCase();
 
 /**
  * Application Service: LotteryService
  * Use cases of the interest-free lottery ("قرعه‌کشی قرض‌الحسنه"): create a
- * pool, draw (random / manual), start it, record installment payments and
- * loan payouts, and build the numbers behind the report charts. Participants
- * come from the shared people roster owned by DebtService.
+ * pool (optionally with an organizer who receives all installments and always
+ * wins month 1), draw (random / manual), start it, record installment payments
+ * and loan payouts, and build the numbers behind the report charts.
+ * Participants come from the shared people roster owned by DebtService.
  */
 export class LotteryService {
   #repo;
@@ -37,23 +39,40 @@ export class LotteryService {
     return this.#repo.getById(id);
   }
 
-  /** dto.participants: [{ name, shares }] — names are resolved against / added to the roster. */
-  create({ participants, ...rest }) {
-    const normalized = participants.map((p) => ({
-      personId: String(p.name ?? '').trim().toLowerCase(),
-      shares: p.shares,
-    }));
-    new LotteryPool({ ...rest, participants: normalized }); // dry run: validate before touching the roster
+  /**
+   * dto.participants: [{ name, shares }]; dto.organizerName must match one of them.
+   * Names are resolved against / added to the roster only after validation passes.
+   */
+  create({ participants, organizerName = '', organizerCardNumber = null, ...rest }) {
+    const organizerKey = keyOf(organizerName);
+    const provisional = participants.map((p) => ({ personId: keyOf(p.name), shares: p.shares }));
+    new LotteryPool({
+      ...rest,
+      participants: provisional,
+      organizerId: organizerKey || null,
+      organizerCardNumber,
+    }); // dry run
 
     const resolved = participants.map((p) => ({
       personId: this.#debtService.getOrCreatePerson(p.name).id,
       shares: p.shares,
     }));
-    return this.#repo.add(new LotteryPool({ ...rest, participants: resolved }));
+    const idByKey = new Map(participants.map((p, i) => [keyOf(p.name), resolved[i].personId]));
+
+    return this.#repo.add(new LotteryPool({
+      ...rest,
+      participants: resolved,
+      organizerId: organizerKey ? idByKey.get(organizerKey) : null,
+      organizerCardNumber,
+    }));
   }
 
   remove(id) {
     this.#repo.remove(id);
+  }
+
+  updateOrganizerCard(id, cardNumber) {
+    this.#mutate(id, (pool) => pool.setOrganizerCardNumber(cardNumber));
   }
 
   // ---------------- Draw ----------------
@@ -91,6 +110,7 @@ export class LotteryService {
       case 'winners': return `مجموع سهم برندگان ماه ${issue.month} باید دقیقاً ${issue.expected} باشد (هر نیم‌سهم ۰٫۵ حساب می‌شود)`;
       case 'pair': return `در ماه ${issue.month} یک نفر دو بار به‌عنوان نیم‌سهم انتخاب شده است`;
       case 'shares': return `«${names.get(issue.personId) ?? '—'}» با ${issue.actual} سهم انتخاب شده ولی ${issue.expected} سهم دارد (سهم کامل‌ها و نیم‌سهم او باید جدا رعایت شود)`;
+      case 'organizer': return `ماه اول باید به برگزارکننده («${names.get(issue.personId) ?? '—'}») برسد`;
       case 'unknown': return `در ماه ${issue.month} فرد یا مقدار نامعتبر انتخاب شده است`;
       default: return 'ترتیب برندگان معتبر نیست';
     }

@@ -1,4 +1,4 @@
-/* Additions for loan payouts ("دریافت وام") and half shares in the lottery feature. Loaded after lottery.css. */
+/* Additions for loan payouts ("دریافت وام"), half shares and the organizer in the lottery feature. Loaded after lottery.css. */
 
 .lottery-stats--3 { grid-template-columns: repeat(3, 1fr); }
 .lottery-stats--3 .lottery-stat__label { font-size: 0.68rem; }
@@ -38,3 +38,37 @@
 .lottery-unit__halves { display: flex; gap: var(--space-2); }
 .lottery-unit__halves .input, .lottery-unit__halves > span { flex: 1 1 0; min-width: 0; }
 .lottery-unit__halves > span[hidden] { display: none; }
+
+/* ---------- Organizer ---------- */
+.lottery-crown { color: var(--warning); margin-inline-start: 4px; font-size: 0.8em; }
+
+.lottery-organizer {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  background: var(--bg-card); border: 1px solid var(--accent-border, var(--separator));
+}
+.lottery-organizer__info { display: flex; align-items: flex-start; gap: var(--space-3); }
+.lottery-organizer__info > i { color: var(--warning); margin-top: 3px; }
+.lottery-organizer__info div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lottery-organizer__info small { font-size: 0.72rem; color: var(--text-secondary); line-height: 1.7; }
+.lottery-organizer__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+
+.lottery-card-number {
+  position: relative; display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: 6px 12px; border-radius: var(--radius-pill); background: var(--bg-surface-2);
+  font-weight: 700; font-size: 0.95rem; letter-spacing: 0.04em; direction: ltr; cursor: pointer;
+}
+.lottery-card-number i { color: var(--text-secondary); font-size: 0.8rem; }
+.lottery-card-number--copied::after {
+  content: 'کپی شد'; position: absolute; inset-inline-start: 50%; top: -26px; transform: translateX(-50%);
+  padding: 2px 8px; border-radius: var(--radius-sm); background: var(--accent); color: #000; font-size: 0.7rem; letter-spacing: 0;
+}
+
+.lottery-card-input { text-align: left; letter-spacing: 0.06em; }
+
+.lottery-payment-note {
+  display: flex; align-items: flex-start; gap: var(--space-2); margin: 0 0 var(--space-3);
+  padding: var(--space-3); border-radius: var(--radius-md); background: var(--bg-surface-2);
+  font-size: 0.8rem; line-height: 1.8; color: var(--text-secondary);
+}
+.lottery-payment-note i { margin-top: 5px; }

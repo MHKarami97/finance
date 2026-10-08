@@ -5,10 +5,16 @@ export const LOTTERY_STATUS = Object.freeze({ DRAFT: 'draft', ACTIVE: 'active' }
 const MAX_MONTHS = 120;
 const FULL = 1;
 const HALF = 0.5;
+const CARD_LENGTH = 16;
+const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 
 /**
  * Entity (Aggregate Root): LotteryPool
  * A zero-interest rotating savings pool ("قرعه‌کشی قرض‌الحسنه").
+ *
+ * Organizer: an optional participant who runs the pool. All installments are
+ * paid to the organizer's account (optional 16-digit card number) and the
+ * organizer pays each month's winner. The organizer always wins in month 1.
  *
  * Shares: a participant holds a multiple of 0.5 shares (0.5, 1, 1.5, 2.5 ...).
  * A holding is split into whole slots plus, for a fractional holding, exactly
@@ -20,6 +26,7 @@ const HALF = 0.5;
  *  - sum(shares) === totalMonths * winnersPerMonth (one winner unit per share)
  *  - the number of people with a half slot is even (so every half has a partner)
  *  - a share pays `perShareAmount = totalAmount / totalMonths` every month
+ *  - when an organizer is set, month 1 contains one of the organizer's entries
  *
  * assignments[m] = winner entries of month m + 1: [{ personId, portion }] where
  * portion is 1 or 0.5 and the portions of a month add up to winnersPerMonth.
@@ -39,6 +46,8 @@ export class LotteryPool {
     winnersPerMonth = 1,
     keepWinnerConsecutive = false,
     participants,
+    organizerId = null,
+    organizerCardNumber = null,
     status = LOTTERY_STATUS.DRAFT,
     assignments = [],
     payments = [],
@@ -86,6 +95,14 @@ export class LotteryPool {
       throw new Error(`مجموع سهم‌ها (${shareSum}) باید برابر «تعداد ماه × برنده در هر ماه» (${requiredShares}) باشد`);
     }
 
+    if (organizerId && !seen.has(organizerId)) {
+      throw new Error('برگزارکننده باید یکی از شرکت‌کنندگان باشد');
+    }
+    const card = LotteryPool.normalizeCardNumber(organizerCardNumber);
+    if (card && !organizerId) {
+      throw new Error('برای ثبت شماره کارت، ابتدا برگزارکننده را مشخص کنید');
+    }
+
     this.id = id || crypto.randomUUID();
     this.title = cleanTitle;
     this.totalMonths = totalMonths;
@@ -94,6 +111,8 @@ export class LotteryPool {
     this.winnersPerMonth = winnersPerMonth;
     this.keepWinnerConsecutive = Boolean(keepWinnerConsecutive);
     this.participants = participants.map((p) => ({ personId: p.personId, shares: p.shares }));
+    this.organizerId = organizerId || null;
+    this.organizerCardNumber = card;
     this.status = status;
     this.assignments = assignments.map((month) => month.map(LotteryPool.normalizeEntry));
     this.payments = payments.map((p) => ({ ...p }));
@@ -110,6 +129,26 @@ export class LotteryPool {
   static normalizeEntry(entry) {
     if (typeof entry === 'string') return { personId: entry, portion: FULL };
     return { personId: entry?.personId, portion: entry?.portion ?? FULL };
+  }
+
+  /** Keeps only Latin digits (Persian digits are converted). Never throws; used for live formatting. */
+  static digitsOfCard(value) {
+    return String(value ?? '')
+      .replace(/[۰-۹]/g, (d) => PERSIAN_DIGITS.indexOf(d))
+      .replace(/\D/g, '');
+  }
+
+  /** Returns the 16 card digits as a string (never a Number: 16 digits exceed 2^53), or null when blank. */
+  static normalizeCardNumber(value) {
+    const digits = LotteryPool.digitsOfCard(value);
+    if (!digits) return null;
+    if (digits.length !== CARD_LENGTH) throw new Error('شماره کارت باید ۱۶ رقم باشد');
+    return digits;
+  }
+
+  /** "6037997512345678" → "6037-9975-1234-5678" (also works on partial input). */
+  static formatCardNumber(value) {
+    return LotteryPool.digitsOfCard(value).slice(0, CARD_LENGTH).replace(/(\d{4})(?=\d)/g, '$1-');
   }
 
   get totalShares() {
@@ -213,6 +252,13 @@ export class LotteryPool {
         return { type: 'shares', personId: p.personId, expected: p.shares, actual: used.full + used.half * HALF };
       }
     }
+
+    if (this.organizerId) {
+      const firstMonth = assignments[0].map(LotteryPool.normalizeEntry);
+      if (!firstMonth.some((e) => e.personId === this.organizerId)) {
+        return { type: 'organizer', personId: this.organizerId };
+      }
+    }
     return null;
   }
 
@@ -231,6 +277,13 @@ export class LotteryPool {
     if (!this.hasDraw) throw new Error('ابتدا ترتیب برندگان را مشخص کنید');
     this.status = LOTTERY_STATUS.ACTIVE;
     this.finalizedAt = new Date().toISOString();
+  }
+
+  /** The card number can be changed at any time (blank removes it). */
+  setOrganizerCardNumber(value) {
+    const card = LotteryPool.normalizeCardNumber(value);
+    if (card && !this.organizerId) throw new Error('این قرعه‌کشی برگزارکننده ندارد');
+    this.organizerCardNumber = card;
   }
 
   // ---------------- Installment payments ----------------

@@ -7,12 +7,15 @@ import { HtmlSanitizer } from '../utils/HtmlSanitizer.js';
  * Component: LotteryPaymentModal
  * Records a dated cash event for one person: an installment payment
  * (default wording) or the receipt of the loan by a winner (custom wording).
+ * An optional `note` (plain text) is shown under the amount, e.g. the
+ * organizer's card number to transfer to.
  */
 export class LotteryPaymentModal {
   static open({
     personName,
     amount,
     title,
+    note = '',
     dateLabel = 'تاریخ پرداخت',
     submitLabel = 'ثبت پرداخت',
     onSubmit,
@@ -24,6 +27,7 @@ export class LotteryPaymentModal {
           <strong>${HtmlSanitizer.escape(personName)}</strong>
           <span>${AmountFormat.toman(amount)}</span>
         </div>
+        ${note ? `<p class="lottery-payment-note"><i class="fa-solid fa-circle-info"></i> <span>${HtmlSanitizer.escape(note)}</span></p>` : ''}
         ${DateBoxField.html('lottery-paid-date', dateLabel)}
       `,
       submitLabel,

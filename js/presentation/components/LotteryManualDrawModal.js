@@ -7,16 +7,22 @@ import { HtmlSanitizer } from '../utils/HtmlSanitizer.js';
  * Component: LotteryManualDrawModal
  * Lets the user pick the winner(s) of every month by hand. Each month has W
  * winner units; when the pool has half shares, a unit can be switched to
- * "نصف‌سهمی" and then takes two different people who each get half. A live
+ * "نیم‌سهمی" and then takes two different people who each get half. A live
  * counter per person shows how many of their shares are already placed.
+ * With an organizer, the first unit of month 1 is pre-filled with him.
  */
 export class LotteryManualDrawModal {
   static open({ pool, names, onSubmit }) {
-    const people = pool.participants.map((p) => ({ id: p.personId, name: names.get(p.personId) ?? '—', shares: p.shares }));
+    const people = pool.participants.map((p) => ({
+      id: p.personId,
+      name: names.get(p.personId) ?? '—',
+      shares: p.shares,
+      isOrganizer: p.personId === pool.organizerId,
+    }));
     const optionsHtml = (selected, role) => `
       <select class="input" data-role="${role}">
         <option value="">— انتخاب —</option>
-        ${people.map((p) => `<option value="${p.id}" ${p.id === selected ? 'selected' : ''}>${HtmlSanitizer.escape(p.name)}</option>`).join('')}
+        ${people.map((p) => `<option value="${p.id}" ${p.id === selected ? 'selected' : ''}>${HtmlSanitizer.escape(p.name)}${p.isOrganizer ? ' (برگزارکننده)' : ''}</option>`).join('')}
       </select>`;
 
     /** Splits a month's saved entries into units: single full entries and pairs of half entries. */
@@ -26,6 +32,13 @@ export class LotteryManualDrawModal {
       const pairs = [];
       for (let i = 0; i < halves.length; i += 2) pairs.push({ split: true, a: halves[i].personId, b: halves[i + 1]?.personId ?? '' });
       return [...fulls, ...pairs];
+    };
+
+    /** Default for month 1 / unit 1 when nothing is drawn yet: the organizer (as a half pair if he only has a half share). */
+    const organizerDefault = () => {
+      const organizer = people.find((p) => p.isOrganizer);
+      if (!organizer) return undefined;
+      return { split: organizer.shares < 1, a: organizer.id, b: '' };
     };
 
     const unitHtml = (month, unit = { split: false, a: '', b: '' }) => `
@@ -44,10 +57,14 @@ export class LotteryManualDrawModal {
     const rowsHtml = Array.from({ length: pool.totalMonths }, (_, i) => {
       const month = i + 1;
       const units = toUnits(pool.winnersOf(month));
+      if (month === 1 && units.length === 0) {
+        const preset = organizerDefault();
+        if (preset) units.push(preset);
+      }
       const unitsHtml = Array.from({ length: pool.winnersPerMonth }, (_unused, u) => unitHtml(month, units[u])).join('');
       return `
         <div class="lottery-manual-row">
-          <span class="lottery-manual-row__label">${AmountFormat.number(month)} · ${JalaliCalendar.formatISOToJalali(pool.dueDateOf(month))}</span>
+          <span class="lottery-manual-row__label">${AmountFormat.number(month)} · ${JalaliCalendar.formatISOToJalali(pool.dueDateOf(month))}${month === 1 && pool.organizerId ? ' · نوبت برگزارکننده' : ''}</span>
           <div class="lottery-manual-row__selects">${unitsHtml}</div>
         </div>`;
     }).join('');
