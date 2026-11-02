@@ -34,6 +34,10 @@ import { LotteryRepository } from './infrastructure/repositories/LotteryReposito
 import { LotteryService } from './application/LotteryService.js';
 import { LotteryPage } from './presentation/pages/LotteryPage.js';
 
+import { cloudSyncService } from './infrastructure/cloud/index.js';
+import { SyncFailedBar } from './presentation/components/SyncFailedBar.js';
+import { CloudConflictModal } from './presentation/components/CloudConflictModal.js';
+
 /**
  * Composition Root (main.js)
  * The single place where concrete implementations are instantiated and
@@ -152,6 +156,9 @@ class App {
 
   start() {
     this.router.start();
+    SyncFailedBar.init();
+    CloudConflictModal.init();
+    void cloudSyncService.start();
   }
 }
 

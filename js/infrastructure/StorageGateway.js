@@ -6,6 +6,24 @@
  */
 export class StorageGateway {
   static #PREFIX = 'fin-app::';
+  static #listeners = [];
+
+  static onChange(listener) {
+    StorageGateway.#listeners.push(listener);
+    return () => {
+      StorageGateway.#listeners = StorageGateway.#listeners.filter((l) => l !== listener);
+    };
+  }
+
+  static #notify() {
+    StorageGateway.#listeners.forEach((l) => {
+      try {
+        l();
+      } catch (err) {
+        console.error('StorageGateway listener error', err);
+      }
+    });
+  }
 
   static read(key, fallback = []) {
     try {
@@ -20,6 +38,7 @@ export class StorageGateway {
   static write(key, value) {
     try {
       localStorage.setItem(StorageGateway.#PREFIX + key, JSON.stringify(value));
+      StorageGateway.#notify();
       return true;
     } catch (err) {
       console.error(`StorageGateway.write failed for key "${key}"`, err);
@@ -31,12 +50,14 @@ export class StorageGateway {
     Object.keys(localStorage)
       .filter((k) => k.startsWith(StorageGateway.#PREFIX))
       .forEach((k) => localStorage.removeItem(k));
+    StorageGateway.#notify();
   }
 
   /** Writes a plain (non-JSON) string, e.g. the theme name which ThemeManager stores raw. */
   static writeRaw(key, text) {
     try {
       localStorage.setItem(StorageGateway.#PREFIX + key, String(text));
+      StorageGateway.#notify();
       return true;
     } catch (err) {
       console.error(`StorageGateway.writeRaw failed for key "${key}"`, err);
@@ -72,6 +93,7 @@ export class StorageGateway {
         : StorageGateway.write(key, value);
       ok = written && ok;
     });
+    if (ok) StorageGateway.#notify();
     return ok;
   }
 }

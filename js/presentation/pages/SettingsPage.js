@@ -2,6 +2,7 @@ import { TopBar } from '../components/TopBar.js';
 import { StorageGateway } from '../../infrastructure/StorageGateway.js';
 import { ThemeManager } from '../../infrastructure/ThemeManager.js';
 import { BackupService } from '../../application/BackupService.js';
+import { CloudBackupCard } from '../components/CloudBackupCard.js';
 
 /**
  * Page: SettingsPage
@@ -51,6 +52,13 @@ export class SettingsPage {
         <a class="settings-row" href="#/about"><i class="fa-solid fa-circle-info"></i><span>درباره برنامه و سازنده</span></a>
       </section>
     `;
+
+    const groups = content.querySelectorAll('.settings-group');
+    if (groups[1]) {
+      const cloudCard = new CloudBackupCard();
+      content.insertBefore(cloudCard.render(), groups[1]);
+    }
+
     page.appendChild(content);
 
     content.querySelector('#theme-switch').addEventListener('click', () => {
