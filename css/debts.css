@@ -22,14 +22,18 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.9rem 1rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .debt-group-item:hover {
-  background: var(--bg-card);
+  background: var(--bg-surface-2);
+  border-color: var(--border-light);
+  transform: translateY(-1px);
 }
 
 .debt-group-item__body {
@@ -85,11 +89,11 @@
 }
 
 .debt-chip__balance--credit {
-  color: #1ed760;
+  color: var(--accent);
 }
 
 .debt-chip__balance--debit {
-  color: #f3727f;
+  color: var(--negative);
 }
 
 .debt-chip__remove {
@@ -120,8 +124,10 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .debt-expense-item__body {
@@ -168,14 +174,16 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.8rem 1rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   font-size: 0.88rem;
 }
 
 .debt-settlement-row__amount {
   font-weight: 700;
-  color: #1ed760;
+  color: var(--accent);
   white-space: nowrap;
 }
 

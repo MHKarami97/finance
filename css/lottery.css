@@ -6,10 +6,11 @@
 .lottery-list { display: flex; flex-direction: column; gap: var(--space-3); }
 .lottery-card {
   display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);
-  padding: var(--space-4); border-radius: var(--radius-md); background: var(--bg-surface); cursor: pointer;
-  transition: background var(--transition-fast);
+  padding: var(--space-4); border-radius: var(--radius-md); background: var(--bg-surface);
+  border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); cursor: pointer;
+  transition: all var(--transition-fast);
 }
-.lottery-card:hover { background: var(--bg-card); }
+.lottery-card:hover { background: var(--bg-surface-2); border-color: var(--border-light); transform: translateY(-1px); }
 .lottery-card__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .lottery-card__title-row { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .lottery-card__title { font-weight: 700; }
@@ -25,7 +26,8 @@
 .lottery-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
 .lottery-stat {
   display: flex; flex-direction: column; gap: 4px; padding: var(--space-3);
-  border-radius: var(--radius-md); background: var(--bg-card); text-align: center; min-width: 0;
+  border-radius: var(--radius-md); background: var(--bg-surface); border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm); text-align: center; min-width: 0;
 }
 .lottery-stat__label { font-size: 0.72rem; color: var(--text-secondary); }
 .lottery-stat__value { font-weight: 700; font-size: 0.92rem; overflow-wrap: anywhere; }
@@ -39,11 +41,12 @@
 .lottery-person-line, .lottery-order__row {
   display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
   padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--bg-surface);
+  border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
 }
 .lottery-person-line__meta { font-size: 0.78rem; color: var(--text-secondary); }
 .lottery-order__month {
   width: 28px; height: 28px; flex: 0 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  background: var(--accent); color: #000; font-weight: 700; font-size: 0.8rem;
+  background: var(--accent); color: var(--accent-contrast); font-weight: 700; font-size: 0.8rem;
 }
 .lottery-order__date { font-size: 0.78rem; color: var(--text-secondary); flex: 0 0 auto; }
 .lottery-order__names { flex: 1; font-weight: 600; text-align: left; }

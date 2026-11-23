@@ -34,18 +34,18 @@ export class DashboardPage {
         <span class="balance-card__amount ${balance.isNegative() ? 'balance-card__amount--negative' : ''}">${balance.toFormattedString()}</span>
         <div class="balance-card__row">
           <div class="balance-card__stat">
-            <i class="fa-solid fa-arrow-down income-icon"></i>
+            <span class="stat-icon-badge stat-icon-badge--income"><i class="fa-solid fa-arrow-down"></i></span>
             <div><span>درآمد ${JalaliCalendar.monthNames()[jm - 1]}</span><strong>${summary.income.toFormattedString()}</strong></div>
           </div>
           <div class="balance-card__stat">
-            <i class="fa-solid fa-arrow-up expense-icon"></i>
+            <span class="stat-icon-badge stat-icon-badge--expense"><i class="fa-solid fa-arrow-up"></i></span>
             <div><span>هزینه ${JalaliCalendar.monthNames()[jm - 1]}</span><strong>${summary.expense.toFormattedString()}</strong></div>
           </div>
         </div>
       </section>
       <section class="section-header">
         <h2>تراکنش‌های اخیر</h2>
-        <a href="#/transactions" class="link">مشاهده همه</a>
+        <a href="#/transactions" class="link">مشاهده همه <i class="fa-solid fa-arrow-left"></i></a>
       </section>
     `;
 

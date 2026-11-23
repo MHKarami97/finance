@@ -17,24 +17,24 @@ export class Category {
 
   static defaultExpenseCategories() {
     return [
-      { name: 'خوراک و رستوران', icon: 'utensils', color: '#f3727f' },
-      { name: 'حمل و نقل', icon: 'car', color: '#539df5' },
-      { name: 'خرید و پوشاک', icon: 'shopping-bag', color: '#ffa42b' },
-      { name: 'قبوض و اجاره', icon: 'file-invoice', color: '#b3b3b3' },
-      { name: 'سلامت و درمان', icon: 'heart-pulse', color: '#1ed760' },
-      { name: 'سرگرمی', icon: 'gamepad', color: '#a06cd5' },
-      { name: 'آموزش', icon: 'book', color: '#4dd0e1' },
-      { name: 'سایر', icon: 'ellipsis', color: '#7c7c7c' },
+      { name: 'خوراک و رستوران', icon: 'utensils', color: '#f43f5e' },
+      { name: 'حمل و نقل', icon: 'car', color: '#3b82f6' },
+      { name: 'خرید و پوشاک', icon: 'bag-shopping', color: '#f59e0b' },
+      { name: 'قبوض و اجاره', icon: 'receipt', color: '#8b5cf6' },
+      { name: 'سلامت و درمان', icon: 'heart-pulse', color: '#10b981' },
+      { name: 'سرگرمی', icon: 'gamepad', color: '#ec4899' },
+      { name: 'آموزش', icon: 'graduation-cap', color: '#06b6d4' },
+      { name: 'سایر', icon: 'ellipsis', color: '#64748b' },
     ].map((c) => new Category({ ...c, id: crypto.randomUUID(), type: 'expense', isDefault: true }));
   }
 
   static defaultIncomeCategories() {
     return [
-      { name: 'حقوق', icon: 'money-bill', color: '#1ed760' },
-      { name: 'فریلنسری', icon: 'laptop', color: '#539df5' },
-      { name: 'سرمایه‌گذاری', icon: 'chart-line', color: '#ffa42b' },
-      { name: 'هدیه', icon: 'gift', color: '#f3727f' },
-      { name: 'سایر', icon: 'ellipsis', color: '#7c7c7c' },
+      { name: 'حقوق', icon: 'money-bill-wave', color: '#10b981' },
+      { name: 'فریلنسری', icon: 'laptop-code', color: '#3b82f6' },
+      { name: 'سرمایه‌گذاری', icon: 'arrow-trend-up', color: '#f59e0b' },
+      { name: 'هدیه', icon: 'gift', color: '#f43f5e' },
+      { name: 'سایر', icon: 'ellipsis', color: '#64748b' },
     ].map((c) => new Category({ ...c, id: crypto.randomUUID(), type: 'income', isDefault: true }));
   }
 }

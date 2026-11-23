@@ -17,7 +17,7 @@ export class ThemeManager {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(ThemeManager.#KEY, theme);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#121212' : '#f7f7f7');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c1017' : '#f8fafc');
   }
 
   static current() {

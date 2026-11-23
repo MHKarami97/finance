@@ -1,75 +1,133 @@
 /**
- * Theme Tokens (Dark + Light)
- * Design tokens ported from the Spotify-inspired design system (spotify-DESIGN.md).
- * Dark theme is the default; Light theme is a fully-supported alternate palette
- * toggled via [data-theme="light"] on <html>, persisted in localStorage.
+ * Theme Tokens (Modern Dark + Light)
+ * Refined, high-end fintech design system with ergonomic contrast,
+ * glassmorphism, fluid elevation, and vibrant semantic palettes.
  */
 :root {
-  --font-ui: 'Vazirmatn', 'SpotifyMixUI', -apple-system, 'Segoe UI', Tahoma, sans-serif;
+  --font-ui: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
+  /* Border Radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
   --radius-pill: 9999px;
 
+  /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-7: 32px;
 
-  --accent: #1ed760;
-  --accent2: #85efaa;
-  --accent-border: #1db954;
-  --negative: #f3727f;
-  --warning: #ffa42b;
-  --announce: #539df5;
-
-  --shadow-heavy: rgba(0, 0, 0, 0.5) 0px 8px 24px;
-  --shadow-medium: rgba(0, 0, 0, 0.3) 0px 8px 8px;
-
-  --transition-fast: 150ms ease;
-  --transition-base: 250ms ease;
+  /* Transitions */
+  --transition-fast: 160ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 340ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ---------- Dark theme (default) ---------- */
+/* ---------- Dark theme (default - ergonomic slate/midnight) ---------- */
 :root,
 [data-theme='dark'] {
-  --bg-base: #121212;
-  --bg-surface: #181818;
-  --bg-surface-2: #1f1f1f;
-  --bg-card: #252525;
-  --bg-card-alt: #272727;
+  --bg-base: #0c1017;
+  --bg-surface: #151b26;
+  --bg-surface-2: #1c2433;
+  --bg-card: #18202f;
+  --bg-card-alt: #1e283b;
 
-  --text-base: #ffffff;
-  --text-secondary: #b3b3b3;
-  --text-tertiary: #7c7c7c;
+  --text-base: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
 
-  --border-color: #4d4d4d;
-  --border-light: #7c7c7c;
-  --separator: #2a2a2a;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.14);
+  --separator: rgba(255, 255, 255, 0.06);
 
-  --shadow-elevation: var(--shadow-medium);
+  --accent: #10b981;
+  --accent-contrast: #ffffff;
+  --accent2: #34d399;
+  --accent-border: rgba(16, 185, 129, 0.35);
+  --accent-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --accent-surface: rgba(16, 185, 129, 0.14);
+  --accent-glow: 0 4px 20px rgba(16, 185, 129, 0.35);
+
+  --negative: #f43f5e;
+  --negative-contrast: #ffffff;
+  --negative-surface: rgba(244, 63, 94, 0.14);
+  --negative-border: rgba(244, 63, 94, 0.3);
+
+  --warning: #f59e0b;
+  --warning-surface: rgba(245, 158, 11, 0.14);
+
+  --announce: #3b82f6;
+  --announce-surface: rgba(59, 130, 246, 0.14);
+
+  --purple: #8b5cf6;
+  --purple-surface: rgba(139, 92, 246, 0.14);
+
+  --teal: #14b8a6;
+  --teal-surface: rgba(20, 184, 166, 0.14);
+
+  --glass-bg: rgba(21, 27, 38, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  --shadow-elevation: 0 12px 36px -4px rgba(0, 0, 0, 0.55), 0 4px 14px -2px rgba(0, 0, 0, 0.35);
+  --shadow-medium: 0 8px 24px -2px rgba(0, 0, 0, 0.4);
+  --shadow-heavy: 0 16px 40px -2px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
 }
 
-/* ---------- Light theme ---------- */
+/* ---------- Light theme (clean, crisp slate) ---------- */
 [data-theme='light'] {
-  --bg-base: #f7f7f7;
+  --bg-base: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-surface-2: #f0f0f0;
+  --bg-surface-2: #f1f5f9;
   --bg-card: #ffffff;
-  --bg-card-alt: #f4f4f4;
+  --bg-card-alt: #f8fafc;
 
-  --text-base: #121212;
-  --text-secondary: #5a5a5a;
-  --text-tertiary: #8a8a8a;
+  --text-base: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
 
-  --border-color: #e0e0e0;
-  --border-light: #cccccc;
-  --separator: #ececec;
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-light: rgba(15, 23, 42, 0.14);
+  --separator: rgba(15, 23, 42, 0.06);
 
-  --shadow-elevation: rgba(0, 0, 0, 0.08) 0px 4px 12px;
-  --accent-border: #189b45;
+  --accent: #059669;
+  --accent-contrast: #ffffff;
+  --accent2: #10b981;
+  --accent-border: rgba(5, 150, 105, 0.3);
+  --accent-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --accent-surface: rgba(5, 150, 105, 0.09);
+  --accent-glow: 0 4px 18px rgba(16, 185, 129, 0.28);
+
+  --negative: #e11d48;
+  --negative-contrast: #ffffff;
+  --negative-surface: rgba(225, 29, 72, 0.08);
+  --negative-border: rgba(225, 29, 72, 0.25);
+
+  --warning: #d97706;
+  --warning-surface: rgba(217, 119, 6, 0.09);
+
+  --announce: #2563eb;
+  --announce-surface: rgba(37, 99, 235, 0.09);
+
+  --purple: #7c3aed;
+  --purple-surface: rgba(124, 58, 237, 0.09);
+
+  --teal: #0d9488;
+  --teal-surface: rgba(13, 148, 136, 0.09);
+
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(15, 23, 42, 0.08);
+
+  --shadow-elevation: 0 10px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  --shadow-medium: 0 6px 18px -2px rgba(15, 23, 42, 0.06);
+  --shadow-heavy: 0 14px 36px -4px rgba(15, 23, 42, 0.12);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.03);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 20px -3px rgba(15, 23, 42, 0.05);
 }

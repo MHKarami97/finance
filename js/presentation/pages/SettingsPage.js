@@ -36,11 +36,11 @@ export class SettingsPage {
       </section>
       <section class="settings-group">
         <h3 class="settings-group__title">مدیریت داده</h3>
-        <button class="settings-row" id="export-json"><i class="fa-solid fa-file-export"></i><span>خروجی کامل (JSON)</span></button>
-        <button class="settings-row" id="export-csv"><i class="fa-solid fa-file-csv"></i><span>خروجی گزارش (CSV)</span></button>
-        <label class="settings-row" for="import-file"><i class="fa-solid fa-file-import"></i><span>بازیابی از فایل JSON</span></label>
+        <button class="settings-row" id="export-json"><i class="fa-solid fa-file-code"></i><span>خروجی کامل (JSON)</span></button>
+        <button class="settings-row" id="export-csv"><i class="fa-solid fa-file-excel"></i><span>خروجی گزارش (CSV)</span></button>
+        <label class="settings-row" for="import-file"><i class="fa-solid fa-file-arrow-up"></i><span>بازیابی از فایل JSON</span></label>
         <input type="file" id="import-file" accept="application/json" hidden />
-        <button class="settings-row settings-row--danger" id="reset-data"><i class="fa-solid fa-trash"></i><span>حذف کامل اطلاعات</span></button>
+        <button class="settings-row settings-row--danger" id="reset-data"><i class="fa-solid fa-trash-can"></i><span>حذف کامل اطلاعات</span></button>
       </section>
       <section class="settings-group">
         <h3 class="settings-group__title">کیف‌های پول</h3>

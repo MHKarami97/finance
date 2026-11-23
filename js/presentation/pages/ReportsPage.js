@@ -65,7 +65,7 @@ export class ReportsPage {
       const body = content.querySelector('#report-body');
       body.innerHTML = `
         <div class="donut-wrapper">
-          <div class="donut-chart" style="background:${gradientParts.length ? `conic-gradient(${gradientParts.join(',')})` : '#252525'}">
+          <div class="donut-chart" style="background:${gradientParts.length ? `conic-gradient(${gradientParts.join(',')})` : 'var(--bg-surface-2)'}">
             <div class="donut-chart__hole">
               <span>${summary.expense.toFormattedString()}</span>
               <small>هزینه کل</small>
