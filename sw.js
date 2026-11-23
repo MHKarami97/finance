@@ -1,4 +1,4 @@
-const CACHE_NAME = "finance-v1.6.1";
+const CACHE_NAME = "finance-v1.6.2-a50ce64e";
 const OFFLINE_PAGE = "/offline.html";
 
 const PRECACHE_URLS = [
@@ -62,7 +62,7 @@ async function networkFirstForHtml(request) {
   const cache = await getCurrentCache();
 
   try {
-    const networkResponse = await fetch(request);
+    const networkResponse = await fetch(request, { cache: "reload" });
 
     if (networkResponse && networkResponse.status === 200) {
       await cache.put(request, networkResponse.clone());
@@ -97,7 +97,7 @@ async function cacheFirstCurrentVersionOnly(request) {
     return cachedResponse;
   }
 
-  const networkResponse = await fetch(request);
+  const networkResponse = await fetch(request, { cache: "reload" });
 
   if (
     networkResponse &&

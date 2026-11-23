@@ -1,0 +1,9 @@
+{
+  "name": "finance",
+  "version": "1.6.2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js"
+  }
+}
