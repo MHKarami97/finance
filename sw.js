@@ -1,4 +1,4 @@
-const CACHE_NAME = "finance-v1.6.2-a50ce64e";
+const CACHE_NAME = "finance-v1.6.2-8fe40732";
 const OFFLINE_PAGE = "/offline.html";
 
 const PRECACHE_URLS = [
