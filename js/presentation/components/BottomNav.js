@@ -146,14 +146,11 @@ export class BottomNav {
     const backdrop = BottomNav.#moreSheetBackdrop;
     const sheet = BottomNav.#moreSheetEl;
 
-    if (!backdrop && !sheet) return;
-
     BottomNav.#moreSheetBackdrop = null;
     BottomNav.#moreSheetEl = null;
 
     if (immediate) {
-      backdrop?.remove();
-      sheet?.remove();
+      document.querySelectorAll('.more-sheet-backdrop, .more-sheet').forEach((el) => el.remove());
       return;
     }
 
@@ -161,8 +158,7 @@ export class BottomNav {
     if (sheet) sheet.classList.remove('more-sheet--open');
 
     setTimeout(() => {
-      backdrop?.remove();
-      sheet?.remove();
+      document.querySelectorAll('.more-sheet-backdrop, .more-sheet').forEach((el) => el.remove());
     }, 280);
   }
 }

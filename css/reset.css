@@ -3,33 +3,43 @@
  */
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body {
+html {
   margin: 0;
   padding: 0;
-  min-height: 100%;
-  overflow-x: hidden;
-}
-
-html {
   direction: rtl;
   color-scheme: dark light;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
   font-family: var(--font-ui);
   background-color: var(--bg-base);
-  background-image: radial-gradient(circle at 50% -5%, var(--bg-surface-2) 0%, var(--bg-base) 70%);
-  background-attachment: fixed;
   color: var(--text-base);
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-base), color var(--transition-base);
-  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
 }
 
-[data-theme='light'] body {
+/* Fixed ambient background gradient using pseudo-element so it NEVER interferes with mobile scrolling */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 50% -5%, var(--bg-surface-2) 0%, var(--bg-base) 70%);
+}
+
+[data-theme='light'] body::before {
   background-image: radial-gradient(circle at 50% -5%, #ffffff 0%, #f8fafc 75%);
 }
 
@@ -45,13 +55,22 @@ h1, h2, h3, h4, p { margin: 0; }
 
 #app {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+}
+
+#view-outlet {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .page {
-  flex: 1;
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  flex: 1 0 auto;
+  padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
   max-width: 480px;
   width: 100%;
   margin: 0 auto;
@@ -79,7 +98,7 @@ h1, h2, h3, h4, p { margin: 0; }
 
 /* Desktop */
 @media (min-width: 1024px) {
-  .page { max-width: 880px; padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
+  .page { max-width: 880px; padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
   .topbar { padding: var(--space-4) var(--space-6); }
   .topbar__title { font-size: 1.55rem; }
 }
@@ -102,7 +121,6 @@ h1, h2, h3, h4, p { margin: 0; }
     margin-top: var(--space-5);
     margin-bottom: var(--space-5);
     background: var(--bg-base);
-    overflow: hidden;
   }
   .topbar { border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
 }

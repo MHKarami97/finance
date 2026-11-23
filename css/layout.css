@@ -251,12 +251,14 @@
   -webkit-backdrop-filter: blur(10px);
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition: opacity var(--transition-base), visibility var(--transition-base);
 }
 
 .more-sheet-backdrop--open {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .more-sheet {
@@ -276,10 +278,14 @@
   transition: transform var(--transition-spring);
   max-height: 85vh;
   overflow-y: auto;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .more-sheet--open {
   transform: translateY(0);
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .more-sheet__handle {
